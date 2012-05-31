@@ -1,0 +1,6 @@
+/**
+\mainpage
+\htmlinclude manifest.html
+
+\b rosgui_image_view provides a rosgui plugin for displaying images using image_transport.
+*/
