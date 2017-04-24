@@ -2,6 +2,9 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming changes
+-------------------
+
 0.4.7 (2017-03-02)
 ------------------
 
