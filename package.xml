@@ -2,13 +2,14 @@
   <name>rqt_image_view</name>
   <version>0.4.7</version>
   <description>rqt_image_view provides a GUI plugin for displaying images using image_transport.</description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
   <maintainer email="ablasdel@gmail.com">Aaron Blasdel</maintainer>
 
   <license>BSD</license>
 
-  <url type="website">http://ros.org/wiki/rqt_image_view</url>
-  <url type="repository">https://github.com/ros-visualization/rqt_common_plugins</url>
-  <url type="bugtracker">https://github.com/ros-visualization/rqt_common_plugins/issues</url>
+  <url type="website">http://wiki.ros.org/rqt_image_view</url>
+  <url type="repository">https://github.com/ros-visualization/rqt_image_view</url>
+  <url type="bugtracker">https://github.com/ros-visualization/rqt_image_view/issues</url>
 
   <author>Dirk Thomas</author>
 
