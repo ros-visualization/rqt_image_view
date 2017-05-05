@@ -86,6 +86,8 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   }
   pub_topic_custom_ = false;
 
+  ui_.image_frame->setOuterLayout(ui_.image_layout);
+
   QRegExp rx("([a-zA-Z/][a-zA-Z0-9_/]*)?"); //see http://www.ros.org/wiki/ROS/Concepts#Names.Valid_Names (but also accept an empty field)
   ui_.publish_click_location_topic_line_edit->setValidator(new QRegExpValidator(rx, this));
   connect(ui_.publish_click_location_check_box, SIGNAL(toggled(bool)), this, SLOT(onMousePublish(bool)));
@@ -434,8 +436,10 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
   if (!ui_.zoom_1_push_button->isEnabled())
   {
     ui_.zoom_1_push_button->setEnabled(true);
-    onZoom1(ui_.zoom_1_push_button->isChecked());
   }
+  // Need to update the zoom 1 every new image in case the iamge aspect ratio change,
+  // though could check and see if the aspect ratio changed or not.
+  onZoom1(ui_.zoom_1_push_button->isChecked());
 }
 }
 
