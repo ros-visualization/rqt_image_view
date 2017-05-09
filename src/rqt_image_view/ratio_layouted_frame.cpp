@@ -82,8 +82,8 @@ void RatioLayoutedFrame::resizeToFitAspectRatio()
 
   if (outer_layout_)
   {
-    width = outer_layout_->contentsRect().width() - 2;
-    height = outer_layout_->contentsRect().height() - 2;
+    width = outer_layout_->contentsRect().width();
+    height = outer_layout_->contentsRect().height();
   }
   else
   {
