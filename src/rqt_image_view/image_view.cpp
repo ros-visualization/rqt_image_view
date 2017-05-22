@@ -437,7 +437,7 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
   {
     ui_.zoom_1_push_button->setEnabled(true);
   }
-  // Need to update the zoom 1 every new image in case the iamge aspect ratio change,
+  // Need to update the zoom 1 every new image in case the image aspect ratio changed,
   // though could check and see if the aspect ratio changed or not.
   onZoom1(ui_.zoom_1_push_button->isChecked());
 }
