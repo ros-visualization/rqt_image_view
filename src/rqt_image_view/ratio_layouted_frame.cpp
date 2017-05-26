@@ -68,6 +68,7 @@ void RatioLayoutedFrame::setImage(const QImage& image)//, QMutex* image_mutex)
 {
   qimage_mutex_.lock();
   qimage_ = image.copy();
+  setAspectRatio(qimage_.width(), qimage_.height());
   qimage_mutex_.unlock();
   emit delayed_update();
 }
@@ -158,7 +159,6 @@ void RatioLayoutedFrame::paintEvent(QPaintEvent* event)
   qimage_mutex_.lock();
   if (!qimage_.isNull())
   {
-    setAspectRatio(qimage_.width(), qimage_.height());
     resizeToFitAspectRatio();
     // TODO: check if full draw is really necessary
     //QPaintEvent* paint_event = dynamic_cast<QPaintEvent*>(event);
