@@ -214,7 +214,7 @@
            </widget>
           </item>
           <property name="margin">
-           <number>0</number>
+           <number>1</number>
           </property>
         </layout>
        </widget>
