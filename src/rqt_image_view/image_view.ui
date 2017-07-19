@@ -16,7 +16,10 @@
   <property name="windowTitle">
    <string>Image View</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QWidget" name="toolbar_widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -163,6 +166,9 @@
      </property>
      <item>
       <widget class="QScrollArea" name="scrollArea">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -200,13 +206,16 @@
              <enum>Qt::ActionsContextMenu</enum>
             </property>
             <property name="frameShape">
-             <enum>QFrame::Box</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <property name="lineWidth">
              <number>1</number>
             </property>
            </widget>
           </item>
+          <property name="margin">
+           <number>1</number>
+          </property>
         </layout>
        </widget>
       </widget>
