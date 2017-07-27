@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* reduce the size of the image border on the left and right side (`#5 <https://github.com/ros-visualization/rqt_image_view/issues/5>`_)
+* avoid shrinking the image when the aspect ratio changes (`#4 <https://github.com/ros-visualization/rqt_image_view/issues/4>`_)
+
 0.4.8 (2017-04-24)
 ------------------
 
