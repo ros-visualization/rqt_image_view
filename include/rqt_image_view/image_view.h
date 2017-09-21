@@ -124,6 +124,8 @@ private:
   bool pub_topic_custom_;
 
   QAction* hide_toolbar_action_;
+
+  cv::Vec3b crosshair_color_;
 };
 
 }

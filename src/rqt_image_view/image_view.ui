@@ -41,6 +41,20 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="crosshair_push_button">
+          <property name="toolTip">
+           <string>Show crosshair</string>
+          </property>
+          <property name="icon">
+           <iconset theme="image-x-generic">
+            <normaloff>.</normaloff>.</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="zoom_1_push_button">
           <property name="enabled">
            <bool>false</bool>

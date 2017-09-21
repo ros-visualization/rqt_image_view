@@ -78,6 +78,9 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("image-x-generic"));
   connect(ui_.save_as_image_push_button, SIGNAL(pressed()), this, SLOT(saveImage()));
 
+  ui_.crosshair_push_button->setIcon(QIcon::fromTheme("image-x-generic"));
+  //connect(ui_.crosshair_push_button, SIGNAL(pressed()), this, SLOT(crosshair()));
+
   // set topic name if passed in as argument
   const QStringList& argv = context.argv();
   if (!argv.empty()) {
@@ -100,6 +103,10 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   hide_toolbar_action_->setCheckable(true);
   ui_.image_frame->addAction(hide_toolbar_action_);
   connect(hide_toolbar_action_, SIGNAL(toggled(bool)), this, SLOT(onHideToolbarChanged(bool)));
+
+  crosshair_color_[0]=0;
+  crosshair_color_[1]=250;
+  crosshair_color_[2]=100;
 }
 
 void ImageView::shutdownPlugin()
@@ -119,6 +126,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   instance_settings.setValue("publish_click_location", ui_.publish_click_location_check_box->isChecked());
   instance_settings.setValue("mouse_pub_topic", ui_.publish_click_location_topic_line_edit->text());
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
+  instance_settings.setValue("show_crosshair", ui_.crosshair_push_button->isChecked());
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
@@ -152,6 +160,9 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
 
   bool toolbar_hidden = instance_settings.value("toolbar_hidden", false).toBool();
   hide_toolbar_action_->setChecked(toolbar_hidden);
+
+  bool show_crosshair = instance_settings.value("show_crosshair", false).toBool();
+  ui_.crosshair_push_button->setChecked(show_crosshair);
 }
 
 void ImageView::updateTopicList()
@@ -383,6 +394,20 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     // First let cv_bridge do its magic
     cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
     conversion_mat_ = cv_ptr->image;
+
+    // Add a crosshair?
+    if (ui_.crosshair_push_button->isChecked())
+    {
+      // The vertical strip
+      int x = conversion_mat_.cols/2;
+      for (int y=0; y<conversion_mat_.rows; y++)
+          conversion_mat_.at<cv::Vec3b>(cv::Point(x,y)) = crosshair_color_;
+
+      // The horizontal strip
+      int y = conversion_mat_.rows/2;
+      for (int x=0; x<conversion_mat_.cols; x++)
+        conversion_mat_.at<cv::Vec3b>(cv::Point(x,y)) = crosshair_color_;
+    }
   }
   catch (cv_bridge::Exception& e)
   {
