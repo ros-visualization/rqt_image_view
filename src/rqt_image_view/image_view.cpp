@@ -78,8 +78,10 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("image-x-generic"));
   connect(ui_.save_as_image_push_button, SIGNAL(pressed()), this, SLOT(saveImage()));
 
-  ui_.crosshair_push_button->setIcon(QIcon::fromTheme("image-x-generic"));
-  //connect(ui_.crosshair_push_button, SIGNAL(pressed()), this, SLOT(crosshair()));
+  std::string filepath = ros::package::getPath("rqt_image_view")+"/icons/crosshair_icon.png";
+  QPixmap pixmap(filepath.c_str());
+  QIcon ButtonIcon(pixmap);
+  ui_.crosshair_push_button->setIcon(ButtonIcon);
 
   // set topic name if passed in as argument
   const QStringList& argv = context.argv();

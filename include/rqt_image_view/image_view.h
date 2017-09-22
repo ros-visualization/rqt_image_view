@@ -38,6 +38,7 @@
 #include <ui_image_view.h>
 
 #include <image_transport/image_transport.h>
+#include <ros/package.h>
 #include <ros/macros.h>
 #include <sensor_msgs/Image.h>
 #include <geometry_msgs/Point.h>
