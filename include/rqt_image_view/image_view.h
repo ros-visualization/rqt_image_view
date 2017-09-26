@@ -126,7 +126,7 @@ private:
 
   QAction* hide_toolbar_action_;
 
-  cv::Vec3b crosshair_color_;
+  cv::Vec3b white_;
 };
 
 }
