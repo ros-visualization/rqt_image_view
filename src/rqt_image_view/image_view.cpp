@@ -75,13 +75,14 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   connect(ui_.dynamic_range_check_box, SIGNAL(toggled(bool)), this, SLOT(onDynamicRange(bool)));
 
-  ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("image-x-generic"));
+  std::string filepath = ros::package::getPath("rqt_image_view")+"/icons/disk_icon.png";
+  QPixmap pixmap(filepath.c_str());
+  ui_.save_as_image_push_button->setIcon(QIcon(pixmap));
   connect(ui_.save_as_image_push_button, SIGNAL(pressed()), this, SLOT(saveImage()));
 
-  std::string filepath = ros::package::getPath("rqt_image_view")+"/icons/grid_icon.png";
-  QPixmap pixmap(filepath.c_str());
-  QIcon ButtonIcon(pixmap);
-  ui_.grid_push_button->setIcon(ButtonIcon);
+  filepath = ros::package::getPath("rqt_image_view")+"/icons/grid_icon.png";
+  pixmap.load(filepath.c_str());
+  ui_.grid_push_button->setIcon(QIcon(pixmap));
 
   // set topic name if passed in as argument
   const QStringList& argv = context.argv();
@@ -106,9 +107,8 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   ui_.image_frame->addAction(hide_toolbar_action_);
   connect(hide_toolbar_action_, SIGNAL(toggled(bool)), this, SLOT(onHideToolbarChanged(bool)));
 
-  white_[0]=255;
-  white_[1]=255;
-  white_[2]=255;
+  // Read ROS parameters
+  getNodeHandle().param("/rqt_image_view/num_strips", num_strips_, 4);
 }
 
 void ImageView::shutdownPlugin()
@@ -388,6 +388,30 @@ void ImageView::onHideToolbarChanged(bool hide)
   ui_.toolbar_widget->setVisible(!hide);
 }
 
+void ImageView::invertPixels(int &x, int &y)
+{
+  for (int i=0; i<3; i++)
+  {
+  	// Could just do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
+    if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[0]>127 )
+      conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i] = 0;
+    else
+      conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i] = 255;
+  }
+}
+
+void ImageView::overlayGrid()
+{
+  // vertical strips
+  for (int x = conversion_mat_.cols/num_strips_; x<conversion_mat_.cols; x+=conversion_mat_.cols/num_strips_)
+    for (int y=0; y<conversion_mat_.rows; y++)
+      invertPixels(x, y);
+
+  // horizontal strips
+  for (int y = conversion_mat_.rows/num_strips_; y<conversion_mat_.rows; y+=conversion_mat_.rows/num_strips_)
+    for (int x=0; x<conversion_mat_.cols; x++)
+      invertPixels(x, y);
+}
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
@@ -397,20 +421,8 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
     conversion_mat_ = cv_ptr->image;
 
-    // Add a grid overlay?
     if (ui_.grid_push_button->isChecked())
-    {
-      int num_strips = 4;
-      // vertical strips
-      for (int x = conversion_mat_.cols/num_strips; x<conversion_mat_.cols; x+=conversion_mat_.cols/num_strips)
-        for (int y=0; y<conversion_mat_.rows; y++)
-          conversion_mat_.at<cv::Vec3b>(cv::Point(x,y)) = white_-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y));
-
-      // horizontal strips
-      for (int y = conversion_mat_.rows/num_strips; y<conversion_mat_.rows; y+=conversion_mat_.rows/num_strips)
-        for (int x=0; x<conversion_mat_.cols; x++)
-          conversion_mat_.at<cv::Vec3b>(cv::Point(x,y)) = white_-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y));
-    }
+      overlayGrid();
   }
   catch (cv_bridge::Exception& e)
   {
