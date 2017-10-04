@@ -106,9 +106,6 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   hide_toolbar_action_->setCheckable(true);
   ui_.image_frame->addAction(hide_toolbar_action_);
   connect(hide_toolbar_action_, SIGNAL(toggled(bool)), this, SLOT(onHideToolbarChanged(bool)));
-
-  // Read ROS parameters
-  getNodeHandle().param("/rqt_image_view/num_strips", num_strips_, 4);
 }
 
 void ImageView::shutdownPlugin()
@@ -402,13 +399,15 @@ void ImageView::invertPixels(int &x, int &y)
 
 void ImageView::overlayGrid()
 {
+  getNodeHandle().param("/rqt_image_view/num_gridlines", num_gridlines_, 4);
+
   // vertical strips
-  for (int x = conversion_mat_.cols/num_strips_; x<conversion_mat_.cols; x+=conversion_mat_.cols/num_strips_)
+  for (int x = conversion_mat_.cols/num_gridlines_; x<conversion_mat_.cols; x+=conversion_mat_.cols/num_gridlines_)
     for (int y=0; y<conversion_mat_.rows; y++)
       invertPixels(x, y);
 
   // horizontal strips
-  for (int y = conversion_mat_.rows/num_strips_; y<conversion_mat_.rows; y+=conversion_mat_.rows/num_strips_)
+  for (int y = conversion_mat_.rows/num_gridlines_; y<conversion_mat_.rows; y+=conversion_mat_.rows/num_gridlines_)
     for (int x=0; x<conversion_mat_.cols; x++)
       invertPixels(x, y);
 }

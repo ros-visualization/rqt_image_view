@@ -130,7 +130,7 @@ private:
 
   QAction* hide_toolbar_action_;
 
-  int num_strips_;
+  int num_gridlines_;
 };
 
 }
