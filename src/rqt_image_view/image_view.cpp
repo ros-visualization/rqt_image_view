@@ -47,7 +47,8 @@ namespace rqt_image_view {
 
 ImageView::ImageView()
   : rqt_gui_cpp::Plugin()
-  , widget_(0)
+  , widget_(0),
+  num_gridlines_(1)
 {
   setObjectName("ImageView");
 }
@@ -75,14 +76,14 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   connect(ui_.dynamic_range_check_box, SIGNAL(toggled(bool)), this, SLOT(onDynamicRange(bool)));
 
-  std::string filepath = ros::package::getPath("rqt_image_view")+"/icons/disk_icon.png";
-  QPixmap pixmap(filepath.c_str());
-  ui_.save_as_image_push_button->setIcon(QIcon(pixmap));
+  ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("document-save-as"));
   connect(ui_.save_as_image_push_button, SIGNAL(pressed()), this, SLOT(saveImage()));
 
-  filepath = ros::package::getPath("rqt_image_view")+"/icons/grid_icon.png";
-  pixmap.load(filepath.c_str());
+  std::string filepath = ros::package::getPath("rqt_image_view")+"/icons/grid_icon.png";
+  QPixmap pixmap(filepath.c_str());
   ui_.grid_push_button->setIcon(QIcon(pixmap));
+
+  connect(ui_.num_gridlines_spin_box, SIGNAL(valueChanged(double)), this, SLOT(updateNumGridlines()));
 
   // set topic name if passed in as argument
   const QStringList& argv = context.argv();
@@ -126,6 +127,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   instance_settings.setValue("mouse_pub_topic", ui_.publish_click_location_topic_line_edit->text());
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
   instance_settings.setValue("show_grid", ui_.grid_push_button->isChecked());
+  instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
@@ -138,6 +140,9 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
 
   double max_range = instance_settings.value("max_range", ui_.max_range_double_spin_box->value()).toDouble();
   ui_.max_range_double_spin_box->setValue(max_range);
+
+  num_gridlines_ = instance_settings.value("num_gridlines", ui_.num_gridlines_spin_box->value()).toInt();
+  ui_.num_gridlines_spin_box->setValue(num_gridlines_);
 
   QString topic = instance_settings.value("topic", "").toString();
   // don't overwrite topic name passed as command line argument
@@ -323,6 +328,11 @@ void ImageView::onDynamicRange(bool checked)
   ui_.max_range_double_spin_box->setEnabled(!checked);
 }
 
+void ImageView::updateNumGridlines()
+{
+  num_gridlines_=ui_.num_gridlines_spin_box->value();
+}
+
 void ImageView::saveImage()
 {
   // take a snapshot before asking for the filename
@@ -390,7 +400,7 @@ void ImageView::invertPixels(int &x, int &y)
   for (int i=0; i<3; i++)
   {
   	// Could just do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
-    if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[0]>127 )
+    if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i]>127 )
       conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i] = 0;
     else
       conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i] = 255;
@@ -399,17 +409,18 @@ void ImageView::invertPixels(int &x, int &y)
 
 void ImageView::overlayGrid()
 {
-  getNodeHandle().param("/rqt_image_view/num_gridlines", num_gridlines_, 4);
+  if (num_gridlines_>0)
+  {
+    // vertical strips
+    for (int x = conversion_mat_.cols/(num_gridlines_+1); x<conversion_mat_.cols; x+=conversion_mat_.cols/(num_gridlines_+1))
+      for (int y=0; y<conversion_mat_.rows; y++)
+        invertPixels(x, y);
 
-  // vertical strips
-  for (int x = conversion_mat_.cols/num_gridlines_; x<conversion_mat_.cols; x+=conversion_mat_.cols/num_gridlines_)
-    for (int y=0; y<conversion_mat_.rows; y++)
-      invertPixels(x, y);
-
-  // horizontal strips
-  for (int y = conversion_mat_.rows/num_gridlines_; y<conversion_mat_.rows; y+=conversion_mat_.rows/num_gridlines_)
-    for (int x=0; x<conversion_mat_.cols; x++)
-      invertPixels(x, y);
+    // horizontal strips
+    for (int y = conversion_mat_.rows/(num_gridlines_+1); y<conversion_mat_.rows; y+=conversion_mat_.rows/(num_gridlines_+1))
+      for (int x=0; x<conversion_mat_.cols; x++)
+        invertPixels(x, y);
+  }
 }
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)

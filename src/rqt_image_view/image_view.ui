@@ -44,6 +44,23 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="zoom_1_push_button">
+          <property name="toolTip">
+           <string>Original zoom</string>
+          </property>
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="icon">
+           <iconset theme="zoom-original">
+            <normaloff>.</normaloff>.</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="grid_push_button">
           <property name="toolTip">
            <string>Overlay grid</string>
@@ -58,19 +75,24 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="zoom_1_push_button">
+         <widget class="QDoubleSpinBox" name="num_gridlines_spin_box">
           <property name="toolTip">
-           <string>Original zoom</string>
+           <string># of gridlines to overlay</string>
           </property>
-          <property name="enabled">
-           <bool>false</bool>
+          <property name="minimum">
+           <double>1</double>
           </property>
-          <property name="icon">
-           <iconset theme="zoom-original">
-            <normaloff>.</normaloff>.</iconset>
+          <property name="maximum">
+           <double>10</double>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
+          <property name="value">
+           <double>1</double>
+          </property>
+          <property name="singleStep">
+            <double>1</double>
+          </property>
+          <property name="Decimals">
+            <double>0</double>
           </property>
          </widget>
         </item>

@@ -97,6 +97,8 @@ protected slots:
 
   virtual void saveImage();
 
+  virtual void updateNumGridlines();
+
   virtual void onMousePublish(bool checked);
 
   virtual void onMouseLeft(int x, int y);
