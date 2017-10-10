@@ -61,38 +61,18 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="grid_push_button">
-          <property name="toolTip">
-           <string>Overlay grid</string>
-          </property>
-          <property name="icon">
-           <iconset theme="image-x-generic">
-            <normaloff>.</normaloff>.</iconset>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="num_gridlines_spin_box">
+         <widget class="QSpinBox" name="num_gridlines_spin_box">
           <property name="toolTip">
            <string># of gridlines to overlay</string>
           </property>
           <property name="minimum">
-           <double>1</double>
+           <double>0</double>
           </property>
           <property name="maximum">
-           <double>10</double>
+           <double>20</double>
           </property>
           <property name="value">
-           <double>1</double>
-          </property>
-          <property name="singleStep">
-            <double>1</double>
-          </property>
-          <property name="Decimals">
-            <double>0</double>
+           <double>0</double>
           </property>
          </widget>
         </item>
