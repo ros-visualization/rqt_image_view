@@ -47,8 +47,8 @@ namespace rqt_image_view {
 
 ImageView::ImageView()
   : rqt_gui_cpp::Plugin()
-  , widget_(0),
-  num_gridlines_(0)
+  , widget_(0)
+  , num_gridlines_(0)
 {
   setObjectName("ImageView");
 }
@@ -389,26 +389,26 @@ void ImageView::onHideToolbarChanged(bool hide)
 
 void ImageView::invertPixels(int &x, int &y)
 {
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; ++i)
   {
   	// Could just do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
-    if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i]>127 )
-      conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i] = 0;
+    if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[i] > 127 )
+      conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[i] = 0;
     else
-      conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i] = 255;
+      conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[i] = 255;
   }
 }
 
 void ImageView::overlayGrid()
 {
     // vertical strips
-    for (int x = conversion_mat_.cols/(num_gridlines_+1); x<conversion_mat_.cols; x += 1+conversion_mat_.cols/(num_gridlines_+1))
-      for (int y = 0; y<conversion_mat_.rows; y++)
+    for (int x = conversion_mat_.cols / (num_gridlines_ + 1); x < conversion_mat_.cols; x += 1 + conversion_mat_.cols / (num_gridlines_ + 1))
+      for (int y = 0; y < conversion_mat_.rows; ++y)
         invertPixels(x, y);
 
     // horizontal strips
-    for (int y = conversion_mat_.rows/(num_gridlines_+1); y<conversion_mat_.rows; y += 1+conversion_mat_.rows/(num_gridlines_+1))
-      for (int x = 0; x<conversion_mat_.cols; x++)
+    for (int y = conversion_mat_.rows / (num_gridlines_ + 1); y < conversion_mat_.rows; y += 1 + conversion_mat_.rows / (num_gridlines_ + 1))
+      for (int x = 0; x < conversion_mat_.cols; ++x)
         invertPixels(x, y);
 }
 
@@ -420,7 +420,7 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
     conversion_mat_ = cv_ptr->image;
 
-    if (num_gridlines_>0)
+    if (num_gridlines_ > 0)
       overlayGrid();
   }
   catch (cv_bridge::Exception& e)
