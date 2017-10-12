@@ -396,39 +396,66 @@ void ImageView::invertPixels(int x, int y)
     conversion_mat_.at<cv::Vec3b>(cv::Point(x, y)) = cv::Vec3b(255,255,255);
 }
 
+QList<int> ImageView::getGridIndices(int size) const
+{
+  QList<int> indices;
+
+  // the spacing between adjacent grid lines
+  float grid_width = 1.0f * size / (num_gridlines_ + 1);
+
+  // select grid line(s) closest to the center
+  float index;
+  if (num_gridlines_ % 2)  // odd
+  {
+    indices.append(size / 2);
+    // make the center line 2px wide in case of an even resolution
+    if (size % 2 == 0)  // even
+      indices.append(size / 2 - 1);
+    index = 1.0f * (size - 1) / 2;
+  }
+  else  // even
+  {
+    index = grid_width * (num_gridlines_ / 2);
+    // one grid line before the center
+    indices.append(round(index));
+    // one grid line after the center
+    indices.append(size - 1 - round(index));
+  }
+
+  // add additional grid lines from the center to the border of the image
+  int lines = (num_gridlines_ - 1) / 2;
+  while (lines > 0)
+  {
+    index -= grid_width;
+    indices.append(round(index));
+    indices.append(size - 1 - round(index));
+    lines--;
+  }
+
+  return indices;
+}
+
 void ImageView::overlayGrid()
 {
-    // vertical gridlines
-    int i = 1;
-    for (int x = conversion_mat_.cols / (num_gridlines_ + 1); x <= conversion_mat_.cols - conversion_mat_.cols / (num_gridlines_ + 1); x = ceil(i * (conversion_mat_.cols / (num_gridlines_ + 1.))))
-    {  
-      i++;
-      for (int y = 0; y < conversion_mat_.rows; ++y)
-      {
-        invertPixels(x, y);
-
-        // Add a second px to the center gridline if odd # of gridlines, even # of pixels. Keeps it centered
-        if (x == ceil( ceil( (1+num_gridlines_) / 2) * (conversion_mat_.cols / (num_gridlines_ + 1.))) )
-          if ( ((num_gridlines_ % 2) != 0)  ) //&& ((conversion_mat_.cols % 2) == 0))
-    	    invertPixels(x-1, y);
-      }
-    }
-
-    // horizontal gridlines
-    i = 1;
-    for (int y = conversion_mat_.rows / (num_gridlines_ + 1); y <= conversion_mat_.rows - conversion_mat_.rows / (num_gridlines_ + 1); y = ceil(i * (conversion_mat_.rows / (num_gridlines_ + 1.))))
+  // vertical gridlines
+  QList<int> columns = getGridIndices(conversion_mat_.cols);
+  for (QList<int>::const_iterator x = columns.begin(); x != columns.end(); ++x)
+  {
+    for (int y = 0; y < conversion_mat_.rows; ++y)
     {
-      i++;
-      for (int x = 0; x < conversion_mat_.cols; ++x)
-      {
-        invertPixels(x, y);
-
-        // Add a second px to the center gridline if odd # of gridlines, even # of pixels. Keeps it centered
-        if (y == ceil( ceil( (1+num_gridlines_) / 2) * (conversion_mat_.rows / (num_gridlines_ + 1.))) )
-          if ( ((num_gridlines_ % 2) != 0)  ) //&& ((conversion_mat_.rows % 2) == 0))
-    	    invertPixels(x, y-1);
-      }
+      invertPixels(*x, y);
     }
+  }
+
+  // horizontal gridlines
+  QList<int> rows = getGridIndices(conversion_mat_.rows);
+  for (QList<int>::const_iterator y = rows.begin(); y != rows.end(); ++y)
+  {
+    for (int x = 0; x < conversion_mat_.cols; ++x)
+    {
+      invertPixels(x, *y);
+    }
+  }
 }
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)

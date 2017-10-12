@@ -113,6 +113,8 @@ protected:
 
   virtual void invertPixels(int x, int y);
 
+  QList<int> getGridIndices(int size) const;
+
   virtual void overlayGrid();
 
   Ui::ImageViewWidget ui_;
