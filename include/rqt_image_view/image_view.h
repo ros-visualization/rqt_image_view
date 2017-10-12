@@ -111,7 +111,7 @@ protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
 
-  virtual void invertPixels(int &x, int &y);
+  virtual void invertPixels(int x, int y);
 
   virtual void overlayGrid();
 
