@@ -48,6 +48,7 @@ namespace rqt_image_view {
 ImageView::ImageView()
   : rqt_gui_cpp::Plugin()
   , widget_(0)
+  , num_gridlines_(0)
 {
   setObjectName("ImageView");
 }
@@ -75,8 +76,10 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   connect(ui_.dynamic_range_check_box, SIGNAL(toggled(bool)), this, SLOT(onDynamicRange(bool)));
 
-  ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("image-x-generic"));
+  ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("document-save-as"));
   connect(ui_.save_as_image_push_button, SIGNAL(pressed()), this, SLOT(saveImage()));
+
+  connect(ui_.num_gridlines_spin_box, SIGNAL(valueChanged(int)), this, SLOT(updateNumGridlines()));
 
   // set topic name if passed in as argument
   const QStringList& argv = context.argv();
@@ -119,6 +122,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   instance_settings.setValue("publish_click_location", ui_.publish_click_location_check_box->isChecked());
   instance_settings.setValue("mouse_pub_topic", ui_.publish_click_location_topic_line_edit->text());
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
+  instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
@@ -131,6 +135,9 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
 
   double max_range = instance_settings.value("max_range", ui_.max_range_double_spin_box->value()).toDouble();
   ui_.max_range_double_spin_box->setValue(max_range);
+
+  num_gridlines_ = instance_settings.value("num_gridlines", ui_.num_gridlines_spin_box->value()).toInt();
+  ui_.num_gridlines_spin_box->setValue(num_gridlines_);
 
   QString topic = instance_settings.value("topic", "").toString();
   // don't overwrite topic name passed as command line argument
@@ -313,6 +320,11 @@ void ImageView::onDynamicRange(bool checked)
   ui_.max_range_double_spin_box->setEnabled(!checked);
 }
 
+void ImageView::updateNumGridlines()
+{
+  num_gridlines_ = ui_.num_gridlines_spin_box->value();
+}
+
 void ImageView::saveImage()
 {
   // take a snapshot before asking for the filename
@@ -375,6 +387,49 @@ void ImageView::onHideToolbarChanged(bool hide)
   ui_.toolbar_widget->setVisible(!hide);
 }
 
+void ImageView::invertPixels(int x, int y)
+{
+  // Could do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
+  if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[0] + conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[1] + conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[2] > 3*127 )
+    conversion_mat_.at<cv::Vec3b>(cv::Point(x, y)) = cv::Vec3b(0,0,0);
+  else
+    conversion_mat_.at<cv::Vec3b>(cv::Point(x, y)) = cv::Vec3b(255,255,255);
+}
+
+void ImageView::overlayGrid()
+{
+    // vertical gridlines
+    int i = 1;
+    for (int x = conversion_mat_.cols / (num_gridlines_ + 1); x <= conversion_mat_.cols - conversion_mat_.cols / (num_gridlines_ + 1); x = ceil(i * (conversion_mat_.cols / (num_gridlines_ + 1.))))
+    {  
+      i++;
+      for (int y = 0; y < conversion_mat_.rows; ++y)
+      {
+        invertPixels(x, y);
+
+        // Add a second px to the center gridline if odd # of gridlines, even # of pixels. Keeps it centered
+        if (x == ceil( ceil( (1+num_gridlines_) / 2) * (conversion_mat_.cols / (num_gridlines_ + 1.))) )
+          if ( ((num_gridlines_ % 2) != 0)  ) //&& ((conversion_mat_.cols % 2) == 0))
+    	    invertPixels(x-1, y);
+      }
+    }
+
+    // horizontal gridlines
+    i = 1;
+    for (int y = conversion_mat_.rows / (num_gridlines_ + 1); y <= conversion_mat_.rows - conversion_mat_.rows / (num_gridlines_ + 1); y = ceil(i * (conversion_mat_.rows / (num_gridlines_ + 1.))))
+    {
+      i++;
+      for (int x = 0; x < conversion_mat_.cols; ++x)
+      {
+        invertPixels(x, y);
+
+        // Add a second px to the center gridline if odd # of gridlines, even # of pixels. Keeps it centered
+        if (y == ceil( ceil( (1+num_gridlines_) / 2) * (conversion_mat_.rows / (num_gridlines_ + 1.))) )
+          if ( ((num_gridlines_ % 2) != 0)  ) //&& ((conversion_mat_.rows % 2) == 0))
+    	    invertPixels(x, y-1);
+      }
+    }
+}
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
@@ -383,6 +438,9 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     // First let cv_bridge do its magic
     cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
     conversion_mat_ = cv_ptr->image;
+
+    if (num_gridlines_ > 0)
+      overlayGrid();
   }
   catch (cv_bridge::Exception& e)
   {

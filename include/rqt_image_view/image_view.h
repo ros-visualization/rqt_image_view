@@ -38,6 +38,7 @@
 #include <ui_image_view.h>
 
 #include <image_transport/image_transport.h>
+#include <ros/package.h>
 #include <ros/macros.h>
 #include <sensor_msgs/Image.h>
 #include <geometry_msgs/Point.h>
@@ -96,6 +97,8 @@ protected slots:
 
   virtual void saveImage();
 
+  virtual void updateNumGridlines();
+
   virtual void onMousePublish(bool checked);
 
   virtual void onMouseLeft(int x, int y);
@@ -107,6 +110,10 @@ protected slots:
 protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
+
+  virtual void invertPixels(int x, int y);
+
+  virtual void overlayGrid();
 
   Ui::ImageViewWidget ui_;
 
@@ -124,6 +131,8 @@ private:
   bool pub_topic_custom_;
 
   QAction* hide_toolbar_action_;
+
+  int num_gridlines_;
 };
 
 }
