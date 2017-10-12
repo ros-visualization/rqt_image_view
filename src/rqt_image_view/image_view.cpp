@@ -399,28 +399,36 @@ void ImageView::invertPixels(int x, int y)
 void ImageView::overlayGrid()
 {
     // vertical gridlines
-    for (int x = conversion_mat_.cols / (num_gridlines_ + 1); x < conversion_mat_.cols; x += ceil(conversion_mat_.cols / (num_gridlines_ + 1)))
+    int i = 1;
+    for (int x = conversion_mat_.cols / (num_gridlines_ + 1); x <= conversion_mat_.cols - conversion_mat_.cols / (num_gridlines_ + 1); x = ceil(i * (conversion_mat_.cols / (num_gridlines_ + 1.))))
+    {  
+      i++;
       for (int y = 0; y < conversion_mat_.rows; ++y)
       {
         invertPixels(x, y);
 
         // Add a second px to the center gridline if odd # of gridlines, even # of pixels. Keeps it centered
-        if (x == conversion_mat_.cols / (num_gridlines_ + 1) * (1 + num_gridlines_ / 2))
-          if ( ((num_gridlines_ % 2) != 0) && ((conversion_mat_.cols % 2) == 0))
+        if (x == ceil( ceil( (1+num_gridlines_) / 2) * (conversion_mat_.cols / (num_gridlines_ + 1.))) )
+          if ( ((num_gridlines_ % 2) != 0)  ) //&& ((conversion_mat_.cols % 2) == 0))
     	    invertPixels(x-1, y);
       }
+    }
 
     // horizontal gridlines
-    for (int y = conversion_mat_.rows / (num_gridlines_ + 1); y < conversion_mat_.rows; y += ceil(conversion_mat_.rows / (num_gridlines_ + 1)))
+    i = 1;
+    for (int y = conversion_mat_.rows / (num_gridlines_ + 1); y <= conversion_mat_.rows - conversion_mat_.rows / (num_gridlines_ + 1); y = ceil(i * (conversion_mat_.rows / (num_gridlines_ + 1.))))
+    {
+      i++;
       for (int x = 0; x < conversion_mat_.cols; ++x)
       {
         invertPixels(x, y);
 
         // Add a second px to the center gridline if odd # of gridlines, even # of pixels. Keeps it centered
-        if (y == conversion_mat_.rows / (num_gridlines_ + 1) * (1 + num_gridlines_ / 2))
-          if ( ((num_gridlines_ % 2) != 0) && ((conversion_mat_.rows % 2) == 0))
+        if (y == ceil( ceil( (1+num_gridlines_) / 2) * (conversion_mat_.rows / (num_gridlines_ + 1.))) )
+          if ( ((num_gridlines_ % 2) != 0)  ) //&& ((conversion_mat_.rows % 2) == 0))
     	    invertPixels(x, y-1);
       }
+    }
 }
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
