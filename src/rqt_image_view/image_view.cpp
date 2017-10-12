@@ -389,14 +389,11 @@ void ImageView::onHideToolbarChanged(bool hide)
 
 void ImageView::invertPixels(int x, int y)
 {
-  for (int i = 0; i < 3; ++i)
-  {
-  	// Could do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
-    if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[i] > 127 )
-      conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[i] = 0;
-    else
-      conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[i] = 255;
-  }
+  // Could do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
+  if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[0] + conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[1] + conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[2] > 3*127 )
+    conversion_mat_.at<cv::Vec3b>(cv::Point(x, y)) = cv::Vec3b(0,0,0);
+  else
+    conversion_mat_.at<cv::Vec3b>(cv::Point(x, y)) = cv::Vec3b(255,255,255);
 }
 
 void ImageView::overlayGrid()
