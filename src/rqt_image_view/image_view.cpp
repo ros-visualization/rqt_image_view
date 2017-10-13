@@ -390,10 +390,11 @@ void ImageView::onHideToolbarChanged(bool hide)
 void ImageView::invertPixels(int x, int y)
 {
   // Could do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
-  if ( conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[0] + conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[1] + conversion_mat_.at<cv::Vec3b>(cv::Point(x, y))[2] > 3*127 )
-    conversion_mat_.at<cv::Vec3b>(cv::Point(x, y)) = cv::Vec3b(0,0,0);
+  cv::Vec3b & pixel = conversion_mat_.at<cv::Vec3b>(cv::Point(x, y));
+  if (pixel[0] + pixel[1] + pixel[2] > 3 * 127)
+    pixel = cv::Vec3b(0,0,0);
   else
-    conversion_mat_.at<cv::Vec3b>(cv::Point(x, y)) = cv::Vec3b(255,255,255);
+    pixel = cv::Vec3b(255,255,255);
 }
 
 QList<int> ImageView::getGridIndices(int size) const
