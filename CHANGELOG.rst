@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.10 (2017-10-13)
+-------------------
 * add option to render grid (`#7 <https://github.com/ros-visualization/rqt_image_view/issues/7>`_)
 
 0.4.9 (2017-07-27)
