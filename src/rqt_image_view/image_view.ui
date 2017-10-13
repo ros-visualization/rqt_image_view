@@ -34,6 +34,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="refresh_topics_push_button">
+          <property name="toolTip">
+           <string>Refresh topics</string>
+          </property>
           <property name="icon">
            <iconset theme="view-refresh">
             <normaloff>.</normaloff>.</iconset>
@@ -42,6 +45,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="zoom_1_push_button">
+          <property name="toolTip">
+           <string>Original zoom</string>
+          </property>
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -51,6 +57,22 @@
           </property>
           <property name="checkable">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="num_gridlines_spin_box">
+          <property name="toolTip">
+           <string># of gridlines to overlay</string>
+          </property>
+          <property name="minimum">
+           <double>0</double>
+          </property>
+          <property name="maximum">
+           <double>20</double>
+          </property>
+          <property name="value">
+           <double>0</double>
           </property>
          </widget>
         </item>

@@ -48,6 +48,7 @@ namespace rqt_image_view {
 ImageView::ImageView()
   : rqt_gui_cpp::Plugin()
   , widget_(0)
+  , num_gridlines_(0)
 {
   setObjectName("ImageView");
 }
@@ -75,8 +76,10 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   connect(ui_.dynamic_range_check_box, SIGNAL(toggled(bool)), this, SLOT(onDynamicRange(bool)));
 
-  ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("image-x-generic"));
+  ui_.save_as_image_push_button->setIcon(QIcon::fromTheme("document-save-as"));
   connect(ui_.save_as_image_push_button, SIGNAL(pressed()), this, SLOT(saveImage()));
+
+  connect(ui_.num_gridlines_spin_box, SIGNAL(valueChanged(int)), this, SLOT(updateNumGridlines()));
 
   // set topic name if passed in as argument
   const QStringList& argv = context.argv();
@@ -119,6 +122,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   instance_settings.setValue("publish_click_location", ui_.publish_click_location_check_box->isChecked());
   instance_settings.setValue("mouse_pub_topic", ui_.publish_click_location_topic_line_edit->text());
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
+  instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
@@ -131,6 +135,9 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
 
   double max_range = instance_settings.value("max_range", ui_.max_range_double_spin_box->value()).toDouble();
   ui_.max_range_double_spin_box->setValue(max_range);
+
+  num_gridlines_ = instance_settings.value("num_gridlines", ui_.num_gridlines_spin_box->value()).toInt();
+  ui_.num_gridlines_spin_box->setValue(num_gridlines_);
 
   QString topic = instance_settings.value("topic", "").toString();
   // don't overwrite topic name passed as command line argument
@@ -313,6 +320,11 @@ void ImageView::onDynamicRange(bool checked)
   ui_.max_range_double_spin_box->setEnabled(!checked);
 }
 
+void ImageView::updateNumGridlines()
+{
+  num_gridlines_ = ui_.num_gridlines_spin_box->value();
+}
+
 void ImageView::saveImage()
 {
   // take a snapshot before asking for the filename
@@ -375,6 +387,77 @@ void ImageView::onHideToolbarChanged(bool hide)
   ui_.toolbar_widget->setVisible(!hide);
 }
 
+void ImageView::invertPixels(int x, int y)
+{
+  // Could do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
+  cv::Vec3b & pixel = conversion_mat_.at<cv::Vec3b>(cv::Point(x, y));
+  if (pixel[0] + pixel[1] + pixel[2] > 3 * 127)
+    pixel = cv::Vec3b(0,0,0);
+  else
+    pixel = cv::Vec3b(255,255,255);
+}
+
+QList<int> ImageView::getGridIndices(int size) const
+{
+  QList<int> indices;
+
+  // the spacing between adjacent grid lines
+  float grid_width = 1.0f * size / (num_gridlines_ + 1);
+
+  // select grid line(s) closest to the center
+  float index;
+  if (num_gridlines_ % 2)  // odd
+  {
+    indices.append(size / 2);
+    // make the center line 2px wide in case of an even resolution
+    if (size % 2 == 0)  // even
+      indices.append(size / 2 - 1);
+    index = 1.0f * (size - 1) / 2;
+  }
+  else  // even
+  {
+    index = grid_width * (num_gridlines_ / 2);
+    // one grid line before the center
+    indices.append(round(index));
+    // one grid line after the center
+    indices.append(size - 1 - round(index));
+  }
+
+  // add additional grid lines from the center to the border of the image
+  int lines = (num_gridlines_ - 1) / 2;
+  while (lines > 0)
+  {
+    index -= grid_width;
+    indices.append(round(index));
+    indices.append(size - 1 - round(index));
+    lines--;
+  }
+
+  return indices;
+}
+
+void ImageView::overlayGrid()
+{
+  // vertical gridlines
+  QList<int> columns = getGridIndices(conversion_mat_.cols);
+  for (QList<int>::const_iterator x = columns.begin(); x != columns.end(); ++x)
+  {
+    for (int y = 0; y < conversion_mat_.rows; ++y)
+    {
+      invertPixels(*x, y);
+    }
+  }
+
+  // horizontal gridlines
+  QList<int> rows = getGridIndices(conversion_mat_.rows);
+  for (QList<int>::const_iterator y = rows.begin(); y != rows.end(); ++y)
+  {
+    for (int x = 0; x < conversion_mat_.cols; ++x)
+    {
+      invertPixels(x, *y);
+    }
+  }
+}
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
@@ -383,6 +466,9 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     // First let cv_bridge do its magic
     cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::RGB8);
     conversion_mat_ = cv_ptr->image;
+
+    if (num_gridlines_ > 0)
+      overlayGrid();
   }
   catch (cv_bridge::Exception& e)
   {
