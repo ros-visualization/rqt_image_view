@@ -2,6 +2,10 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* use catkin_install_python with scripts (`#8 <https://github.com/ros-visualization/rqt_image_view/issues/8>`_)
+
 0.4.10 (2017-10-13)
 -------------------
 * add option to render grid (`#7 <https://github.com/ros-visualization/rqt_image_view/issues/7>`_)
