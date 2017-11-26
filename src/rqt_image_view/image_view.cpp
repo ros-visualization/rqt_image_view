@@ -376,11 +376,32 @@ void ImageView::onMouseLeft(int x, int y)
 {
   if(ui_.publish_click_location_check_box->isChecked() && !ui_.image_frame->getImage().isNull())
   {
-    geometry_msgs::Point clickLocation;
+    geometry_msgs::Point clickCanvasLocation;
     // Publish click location in pixel coordinates
-    clickLocation.x = round((double)x/(double)ui_.image_frame->width()*(double)ui_.image_frame->getImage().width());
-    clickLocation.y = round((double)y/(double)ui_.image_frame->height()*(double)ui_.image_frame->getImage().height());
-    clickLocation.z = 0;
+    clickCanvasLocation.x = round((double)x/(double)ui_.image_frame->width()*(double)ui_.image_frame->getImage().width());
+    clickCanvasLocation.y = round((double)y/(double)ui_.image_frame->height()*(double)ui_.image_frame->getImage().height());
+    clickCanvasLocation.z = 0;
+
+    geometry_msgs::Point clickLocation = clickCanvasLocation;
+
+    switch(rotate_state_)
+    {
+      case ROTATE_90:
+        clickLocation.x = ui_.image_frame->getImage().height() - clickCanvasLocation.y;
+        clickLocation.y = clickCanvasLocation.x;
+        break;
+      case ROTATE_180:
+        clickLocation.x = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
+        clickLocation.y = ui_.image_frame->getImage().height() - clickCanvasLocation.y;
+        break;
+      case ROTATE_270:
+        clickLocation.x = clickCanvasLocation.y;
+        clickLocation.y = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
+        break;
+      default:
+        break;
+    }
+
     pub_mouse_left_.publish(clickLocation);
   }
 }
