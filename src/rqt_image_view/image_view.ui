@@ -164,6 +164,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="rotate_push_button">
+          <property name="text">
+           <string>Rotate: 0°</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

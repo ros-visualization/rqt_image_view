@@ -107,6 +107,8 @@ protected slots:
 
   virtual void onHideToolbarChanged(bool hide);
 
+  virtual void onRotate();
+
 protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
@@ -127,6 +129,17 @@ protected:
 
 private:
 
+  enum RotateState {
+    ROTATE_0 = 0,
+    ROTATE_90 = 1,
+    ROTATE_180 = 2,
+    ROTATE_270 = 3,
+
+    ROTATE_STATE_COUNT
+  };
+
+  void syncRotateLabel();
+
   QString arg_topic_name;
   ros::Publisher pub_mouse_left_;
 
@@ -135,6 +148,8 @@ private:
   QAction* hide_toolbar_action_;
 
   int num_gridlines_;
+
+  RotateState rotate_state_;
 };
 
 }
