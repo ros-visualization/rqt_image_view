@@ -100,7 +100,13 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   connect(ui_.smooth_image_check_box, SIGNAL(toggled(bool)), ui_.image_frame, SLOT(onSmoothImageChanged(bool)));
 
-  connect(ui_.rotate_push_button, SIGNAL(clicked(bool)), this, SLOT(onRotate()));
+  connect(ui_.rotate_left_push_button, SIGNAL(clicked(bool)), this, SLOT(onRotateLeft()));
+  connect(ui_.rotate_right_push_button, SIGNAL(clicked(bool)), this, SLOT(onRotateRight()));
+
+  // Make sure we have enough space for "XXX °"
+  ui_.rotate_label->setMinimumWidth(
+    ui_.rotate_label->fontMetrics().width("XXX°")
+  );
 
   hide_toolbar_action_ = new QAction(tr("Hide toolbar"), this);
   hide_toolbar_action_->setCheckable(true);
@@ -417,9 +423,19 @@ void ImageView::onHideToolbarChanged(bool hide)
   ui_.toolbar_widget->setVisible(!hide);
 }
 
-void ImageView::onRotate()
+void ImageView::onRotateLeft()
 {
   rotate_state_ = static_cast<RotateState>((rotate_state_ + 1) % ROTATE_STATE_COUNT);
+  syncRotateLabel();
+}
+
+void ImageView::onRotateRight()
+{
+  int m = rotate_state_ - 1;
+  if(m < 0)
+    m = ROTATE_STATE_COUNT-1;
+
+  rotate_state_ = static_cast<RotateState>(m);
   syncRotateLabel();
 }
 
@@ -428,10 +444,10 @@ void ImageView::syncRotateLabel()
   switch(rotate_state_)
   {
     default:
-    case ROTATE_0:   ui_.rotate_push_button->setText("Rotate: 0°"); break;
-    case ROTATE_90:  ui_.rotate_push_button->setText("Rotate: 90°"); break;
-    case ROTATE_180: ui_.rotate_push_button->setText("Rotate: 180°"); break;
-    case ROTATE_270: ui_.rotate_push_button->setText("Rotate: 270°"); break;
+    case ROTATE_0:   ui_.rotate_label->setText("0°"); break;
+    case ROTATE_90:  ui_.rotate_label->setText("90°"); break;
+    case ROTATE_180: ui_.rotate_label->setText("180°"); break;
+    case ROTATE_270: ui_.rotate_label->setText("270°"); break;
   }
 }
 

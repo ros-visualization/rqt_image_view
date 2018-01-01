@@ -164,9 +164,36 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="rotate_push_button">
+         <widget class="QPushButton" name="rotate_left_push_button">
           <property name="text">
-           <string>Rotate: 0°</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme="object-rotate-left">
+            <normaloff/>
+           </iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="rotate_label">
+          <property name="text">
+           <string>0°</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="rotate_right_push_button">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset theme="object-rotate-right">
+            <normaloff/>
+           </iconset>
           </property>
          </widget>
         </item>

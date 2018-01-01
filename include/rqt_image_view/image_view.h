@@ -107,7 +107,8 @@ protected slots:
 
   virtual void onHideToolbarChanged(bool hide);
 
-  virtual void onRotate();
+  virtual void onRotateLeft();
+  virtual void onRotateRight();
 
 protected:
 
