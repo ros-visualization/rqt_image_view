@@ -425,17 +425,17 @@ void ImageView::onHideToolbarChanged(bool hide)
 
 void ImageView::onRotateLeft()
 {
-  rotate_state_ = static_cast<RotateState>((rotate_state_ + 1) % ROTATE_STATE_COUNT);
-  syncRotateLabel();
-}
-
-void ImageView::onRotateRight()
-{
   int m = rotate_state_ - 1;
   if(m < 0)
     m = ROTATE_STATE_COUNT-1;
 
   rotate_state_ = static_cast<RotateState>(m);
+  syncRotateLabel();
+}
+
+void ImageView::onRotateRight()
+{
+  rotate_state_ = static_cast<RotateState>((rotate_state_ + 1) % ROTATE_STATE_COUNT);
   syncRotateLabel();
 }
 
@@ -586,7 +586,7 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     {
       cv::Mat tmp;
       cv::transpose(conversion_mat_, tmp);
-      cv::flip(tmp, conversion_mat_, 0);
+      cv::flip(tmp, conversion_mat_, 1);
       break;
     }
     case ROTATE_180:
@@ -600,7 +600,7 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     {
       cv::Mat tmp;
       cv::transpose(conversion_mat_, tmp);
-      cv::flip(tmp, conversion_mat_, 1);
+      cv::flip(tmp, conversion_mat_, 0);
       break;
     }
     default:
