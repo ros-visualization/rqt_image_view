@@ -393,16 +393,16 @@ void ImageView::onMouseLeft(int x, int y)
     switch(rotate_state_)
     {
       case ROTATE_90:
-        clickLocation.x = ui_.image_frame->getImage().height() - clickCanvasLocation.y;
-        clickLocation.y = clickCanvasLocation.x;
+        clickLocation.x = clickCanvasLocation.y;
+        clickLocation.y = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
         break;
       case ROTATE_180:
         clickLocation.x = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
         clickLocation.y = ui_.image_frame->getImage().height() - clickCanvasLocation.y;
         break;
       case ROTATE_270:
-        clickLocation.x = clickCanvasLocation.y;
-        clickLocation.y = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
+        clickLocation.x = ui_.image_frame->getImage().height() - clickCanvasLocation.y;
+        clickLocation.y = clickCanvasLocation.x;
         break;
       default:
         break;
