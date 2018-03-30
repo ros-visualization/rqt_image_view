@@ -78,9 +78,6 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 catkin_install_python(PROGRAMS scripts/rqt_image_view
-  DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
-catkin_install_python(PROGRAMS scripts/rqt_image_view
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
