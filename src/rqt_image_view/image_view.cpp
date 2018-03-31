@@ -49,6 +49,7 @@ ImageView::ImageView()
   : rqt_gui_cpp::Plugin()
   , widget_(0)
   , num_gridlines_(0)
+  , rotate_state_(ROTATE_0)
 {
   setObjectName("ImageView");
 }
@@ -99,6 +100,14 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   connect(ui_.smooth_image_check_box, SIGNAL(toggled(bool)), ui_.image_frame, SLOT(onSmoothImageChanged(bool)));
 
+  connect(ui_.rotate_left_push_button, SIGNAL(clicked(bool)), this, SLOT(onRotateLeft()));
+  connect(ui_.rotate_right_push_button, SIGNAL(clicked(bool)), this, SLOT(onRotateRight()));
+
+  // Make sure we have enough space for "XXX °"
+  ui_.rotate_label->setMinimumWidth(
+    ui_.rotate_label->fontMetrics().width("XXX°")
+  );
+
   hide_toolbar_action_ = new QAction(tr("Hide toolbar"), this);
   hide_toolbar_action_->setCheckable(true);
   ui_.image_frame->addAction(hide_toolbar_action_);
@@ -123,6 +132,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   instance_settings.setValue("mouse_pub_topic", ui_.publish_click_location_topic_line_edit->text());
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
   instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
+  instance_settings.setValue("rotate", rotate_state_);
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
@@ -159,6 +169,11 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
 
   bool toolbar_hidden = instance_settings.value("toolbar_hidden", false).toBool();
   hide_toolbar_action_->setChecked(toolbar_hidden);
+
+  rotate_state_ = static_cast<RotateState>(instance_settings.value("rotate", 0).toInt());
+  if(rotate_state_ >= ROTATE_STATE_COUNT)
+    rotate_state_ = ROTATE_0;
+  syncRotateLabel();
 }
 
 void ImageView::updateTopicList()
@@ -367,11 +382,32 @@ void ImageView::onMouseLeft(int x, int y)
 {
   if(ui_.publish_click_location_check_box->isChecked() && !ui_.image_frame->getImage().isNull())
   {
-    geometry_msgs::Point clickLocation;
+    geometry_msgs::Point clickCanvasLocation;
     // Publish click location in pixel coordinates
-    clickLocation.x = round((double)x/(double)ui_.image_frame->width()*(double)ui_.image_frame->getImage().width());
-    clickLocation.y = round((double)y/(double)ui_.image_frame->height()*(double)ui_.image_frame->getImage().height());
-    clickLocation.z = 0;
+    clickCanvasLocation.x = round((double)x/(double)ui_.image_frame->width()*(double)ui_.image_frame->getImage().width());
+    clickCanvasLocation.y = round((double)y/(double)ui_.image_frame->height()*(double)ui_.image_frame->getImage().height());
+    clickCanvasLocation.z = 0;
+
+    geometry_msgs::Point clickLocation = clickCanvasLocation;
+
+    switch(rotate_state_)
+    {
+      case ROTATE_90:
+        clickLocation.x = clickCanvasLocation.y;
+        clickLocation.y = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
+        break;
+      case ROTATE_180:
+        clickLocation.x = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
+        clickLocation.y = ui_.image_frame->getImage().height() - clickCanvasLocation.y;
+        break;
+      case ROTATE_270:
+        clickLocation.x = ui_.image_frame->getImage().height() - clickCanvasLocation.y;
+        clickLocation.y = clickCanvasLocation.x;
+        break;
+      default:
+        break;
+    }
+
     pub_mouse_left_.publish(clickLocation);
   }
 }
@@ -385,6 +421,34 @@ void ImageView::onPubTopicChanged()
 void ImageView::onHideToolbarChanged(bool hide)
 {
   ui_.toolbar_widget->setVisible(!hide);
+}
+
+void ImageView::onRotateLeft()
+{
+  int m = rotate_state_ - 1;
+  if(m < 0)
+    m = ROTATE_STATE_COUNT-1;
+
+  rotate_state_ = static_cast<RotateState>(m);
+  syncRotateLabel();
+}
+
+void ImageView::onRotateRight()
+{
+  rotate_state_ = static_cast<RotateState>((rotate_state_ + 1) % ROTATE_STATE_COUNT);
+  syncRotateLabel();
+}
+
+void ImageView::syncRotateLabel()
+{
+  switch(rotate_state_)
+  {
+    default:
+    case ROTATE_0:   ui_.rotate_label->setText("0°"); break;
+    case ROTATE_90:  ui_.rotate_label->setText("90°"); break;
+    case ROTATE_180: ui_.rotate_label->setText("180°"); break;
+    case ROTATE_270: ui_.rotate_label->setText("270°"); break;
+  }
 }
 
 void ImageView::invertPixels(int x, int y)
@@ -513,6 +577,34 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
       ui_.image_frame->setImage(QImage());
       return;
     }
+  }
+
+  // Handle rotation
+  switch(rotate_state_)
+  {
+    case ROTATE_90:
+    {
+      cv::Mat tmp;
+      cv::transpose(conversion_mat_, tmp);
+      cv::flip(tmp, conversion_mat_, 1);
+      break;
+    }
+    case ROTATE_180:
+    {
+      cv::Mat tmp;
+      cv::flip(conversion_mat_, tmp, -1);
+      conversion_mat_ = tmp;
+      break;
+    }
+    case ROTATE_270:
+    {
+      cv::Mat tmp;
+      cv::transpose(conversion_mat_, tmp);
+      cv::flip(tmp, conversion_mat_, 0);
+      break;
+    }
+    default:
+      break;
   }
 
   // image must be copied since it uses the conversion_mat_ for storage which is asynchronously overwritten in the next callback invocation
