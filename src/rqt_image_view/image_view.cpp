@@ -132,6 +132,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   instance_settings.setValue("mouse_pub_topic", ui_.publish_click_location_topic_line_edit->text());
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
   instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
+  instance_settings.setValue("smooth_image", ui_.smooth_image_check_box->isChecked());
   instance_settings.setValue("rotate", rotate_state_);
 }
 
@@ -169,6 +170,9 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
 
   bool toolbar_hidden = instance_settings.value("toolbar_hidden", false).toBool();
   hide_toolbar_action_->setChecked(toolbar_hidden);
+
+  bool smooth_image_checked = instance_settings.value("smooth_image", false).toBool();
+  ui_.smooth_image_check_box->setChecked(smooth_image_checked);
 
   rotate_state_ = static_cast<RotateState>(instance_settings.value("rotate", 0).toInt());
   if(rotate_state_ >= ROTATE_STATE_COUNT)
