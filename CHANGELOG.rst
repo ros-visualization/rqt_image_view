@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.12 (2018-05-02)
+-------------------
 * save and restore the smooth image check box state (`#13 <https://github.com/ros-visualization/rqt_image_view/issues/13>`_)
 * allow image rotation in 90° steps (`#10 <https://github.com/ros-visualization/rqt_image_view/issues/10>`_)
 * use Python distutils to install the global rqt_image_view executable (`#12 <https://github.com/ros-visualization/rqt_image_view/issues/12>`_)
