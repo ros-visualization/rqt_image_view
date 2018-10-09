@@ -5,7 +5,7 @@ project(rqt_image_view)
 add_compile_options(-std=c++11)
 
 # Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS rqt_gui rqt_gui_cpp image_transport sensor_msgs geometry_msgs cv_bridge)
+find_package(catkin REQUIRED COMPONENTS cv_bridge rqt_gui rqt_gui_cpp geometry_msgs image_transport message_generation sensor_msgs)
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   find_package(Qt5Widgets REQUIRED)
@@ -36,12 +36,22 @@ if(NOT EXISTS "${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION}")
   file(MAKE_DIRECTORY "${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION}")
 endif()
 
+add_service_files(DIRECTORY srv
+  FILES
+  SetImageTopic.srv
+)
+
+catkin_python_setup()
+
+generate_messages(
+  DEPENDENCIES
+)
+
 catkin_package(
   INCLUDE_DIRS ${rqt_image_view_INCLUDE_DIRECTORIES}
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS rqt_gui rqt_gui_cpp image_transport sensor_msgs cv_bridge geometry_msgs
+  CATKIN_DEPENDS rqt_gui rqt_gui_cpp image_transport sensor_msgs cv_bridge geometry_msgs message_runtime
 )
-catkin_python_setup()
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   qt5_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
@@ -69,6 +79,8 @@ endif()
 
 find_package(class_loader)
 class_loader_hide_library_symbols(${PROJECT_NAME})
+
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 install(FILES plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}

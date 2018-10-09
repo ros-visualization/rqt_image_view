@@ -37,11 +37,12 @@
 
 #include <ui_image_view.h>
 
+#include <geometry_msgs/Point.h>
 #include <image_transport/image_transport.h>
 #include <ros/package.h>
 #include <ros/macros.h>
+#include "rqt_image_view/SetImageTopic.h"
 #include <sensor_msgs/Image.h>
-#include <geometry_msgs/Point.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -116,6 +117,9 @@ protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
 
+  bool changeImageService(rqt_image_view::SetImageTopic::Request &req,
+         rqt_image_view::SetImageTopic::Response &res);
+
   virtual void invertPixels(int x, int y);
 
   QList<int> getGridIndices(int size) const;
@@ -153,6 +157,8 @@ private:
   int num_gridlines_;
 
   RotateState rotate_state_;
+
+  ros::ServiceServer change_topic_service_;
 };
 
 }
