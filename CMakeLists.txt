@@ -1,15 +1,29 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 
 project(rqt_image_view)
-# Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS rqt_gui rqt_gui_cpp image_transport sensor_msgs geometry_msgs cv_bridge)
 
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  find_package(Qt5Widgets REQUIRED)
-else()
-  find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-  include(${QT_USE_FILE})
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
 endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(qt_gui_cpp REQUIRED)
+find_package(rqt_gui_cpp REQUIRED)
+find_package(image_transport REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 
 set(rqt_image_view_SRCS
   src/rqt_image_view/image_view.cpp
@@ -27,60 +41,74 @@ set(rqt_image_view_UIS
 
 set(rqt_image_view_INCLUDE_DIRECTORIES
   include
-  "${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION}"
+  ${rclcpp_INCLUDE_DIRS}
+  ${qt_gui_cpp_INCLUDE_DIRS}
+  ${rqt_gui_cpp_INCLUDE_DIRS}
+  ${image_transport_INCLUDE_DIRS}
+  ${sensor_msgs_INCLUDE_DIRS}
+  ${geometry_msgs_INCLUDE_DIRS}
+  ${cv_bridge_INCLUDE_DIRS}
+  ${Qt5Widgets_INCLUDE_DIRS}
 )
-if(NOT EXISTS "${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION}")
-  file(MAKE_DIRECTORY "${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION}")
-endif()
 
-catkin_package(
-  INCLUDE_DIRS ${rqt_image_view_INCLUDE_DIRECTORIES}
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS rqt_gui rqt_gui_cpp image_transport sensor_msgs cv_bridge geometry_msgs
+qt5_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
+
+qt5_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
+
+include_directories(
+  ${rqt_image_view_INCLUDE_DIRECTORIES}
 )
-catkin_python_setup()
 
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  qt5_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
-else()
-  qt4_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
-endif()
-# ensure generated header files are being created in the devel space
-set(_cmake_current_binary_dir "${CMAKE_CURRENT_BINARY_DIR}")
-set(CMAKE_CURRENT_BINARY_DIR "${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_INCLUDE_DESTINATION}")
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  qt5_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
-else()
-  qt4_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
-endif()
-set(CMAKE_CURRENT_BINARY_DIR "${_cmake_current_binary_dir}")
+add_library(${PROJECT_NAME} SHARED
+  ${rqt_image_view_SRCS}
+  ${rqt_image_view_MOCS}
+  ${rqt_image_view_UIS_H}
+)
 
-include_directories(${rqt_image_view_INCLUDE_DIRECTORIES} ${catkin_INCLUDE_DIRS})
-add_library(${PROJECT_NAME} ${rqt_image_view_SRCS} ${rqt_image_view_MOCS} ${rqt_image_view_UIS_H})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
-  target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
-else()
-  target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
-endif()
+target_link_libraries(
+  ${PROJECT_NAME}
+  ${rclcpp_LIBRARIES}
+  ${qt_gui_cpp_LIBRARIES}
+  ${rqt_gui_cpp_LIBRARIES}
+  ${image_transport_LIBRARIES}
+  ${sensor_msgs_LIBRARIES}
+  ${geometry_msgs_LIBRARIES}
+  ${cv_bridge_LIBRARIES}
+  Qt5::Widgets
+)
 
-find_package(class_loader)
-class_loader_hide_library_symbols(${PROJECT_NAME})
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include)
+
+install(PROGRAMS scripts/rqt_image_view
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS scripts/image_publisher.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
 
 install(FILES plugin.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS ${PROJECT_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+install(DIRECTORY resource
+  DESTINATION share/${PROJECT_NAME}
 )
 
-catkin_install_python(PROGRAMS scripts/rqt_image_view
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+pluginlib_export_plugin_description_file(rqt_gui "plugin.xml")
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+
+ament_package()

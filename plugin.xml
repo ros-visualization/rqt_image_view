@@ -1,4 +1,4 @@
-<library path="lib/librqt_image_view">
+<library path="rqt_image_view">
   <class name="rqt_image_view/ImageView" type="rqt_image_view::ImageView" base_class_type="rqt_gui_cpp::Plugin">
     <description>
       A GUI plugin to view a sensor_msgs/Image topic.
