@@ -222,11 +222,6 @@ void ImageView::updateTopicList()
   selectTopic(selected);
 }
 
-// QList<QString> ImageView::getTopicList(const QSet<QString>& message_types, const QList<QString>& transports)
-// {
-//   QSet<QString> message_sub_types;
-//   return getTopics(message_types, message_sub_types, transports).values();
-// }
 
 QSet<QString> ImageView::getTopics(const QSet<QString>& message_types, const QSet<QString>& message_sub_types, const QList<QString>& transports)
 {
