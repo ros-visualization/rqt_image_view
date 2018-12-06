@@ -222,7 +222,6 @@ void ImageView::updateTopicList()
   selectTopic(selected);
 }
 
-
 QSet<QString> ImageView::getTopics(const QSet<QString>& message_types, const QSet<QString>& message_sub_types, const QList<QString>& transports)
 {
   std::map<std::string, std::vector<std::string>> topic_info = node_->get_topic_names_and_types();
