@@ -38,10 +38,10 @@
 #include <ui_image_view.h>
 
 #include <image_transport/image_transport.h>
-#include <ros/package.h>
-#include <ros/macros.h>
-#include <sensor_msgs/Image.h>
-#include <geometry_msgs/Point.h>
+#include <image_transport/subscriber.h>
+
+#include <sensor_msgs/msg/image.hpp>
+#include <geometry_msgs/msg/point.hpp>
 
 #include <opencv2/core/core.hpp>
 
@@ -80,9 +80,6 @@ protected slots:
 
 protected:
 
-  // deprecated function for backward compatibility only, use getTopics() instead
-  ROS_DEPRECATED virtual QList<QString> getTopicList(const QSet<QString>& message_types, const QList<QString>& transports);
-
   virtual QSet<QString> getTopics(const QSet<QString>& message_types, const QSet<QString>& message_sub_types, const QList<QString>& transports);
 
   virtual void selectTopic(const QString& topic);
@@ -112,7 +109,7 @@ protected slots:
 
 protected:
 
-  virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
+  virtual void callbackImage(const sensor_msgs::msg::Image::ConstPtr& msg);
 
   virtual void invertPixels(int x, int y);
 
@@ -142,7 +139,8 @@ private:
   void syncRotateLabel();
 
   QString arg_topic_name;
-  ros::Publisher pub_mouse_left_;
+
+  rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr pub_mouse_left_;
 
   bool pub_topic_custom_;
 
