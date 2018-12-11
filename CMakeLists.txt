@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.5)
 
 project(rqt_image_view)
 
+find_package(ament_cmake REQUIRED)
+
+if(WIN32)
+  message(STATUS "rqt_image_view is not yet supported on Windows. Package will not be built.")
+  ament_package()
+  return()
+endif()
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -14,7 +22,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(qt_gui_cpp REQUIRED)
 find_package(rqt_gui_cpp REQUIRED)
