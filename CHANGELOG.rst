@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2018-12-11)
+------------------
 * fix various compiler warnings (`#20 <https://github.com/ros-visualization/rqt_image_view/issues/20>`_)
 * Notifying developers that rqt_image_view is not available for windows (`#19 <https://github.com/ros-visualization/rqt_image_view/issues/19>`_)
 * Ros2 port (`#18 <https://github.com/ros-visualization/rqt_image_view/issues/18>`_)
