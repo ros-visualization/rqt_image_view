@@ -2,6 +2,13 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix various compiler warnings (`#20 <https://github.com/ros-visualization/rqt_image_view/issues/20>`_)
+* Notifying developers that rqt_image_view is not available for windows (`#19 <https://github.com/ros-visualization/rqt_image_view/issues/19>`_)
+* Ros2 port (`#18 <https://github.com/ros-visualization/rqt_image_view/issues/18>`_)
+* Contributors: Dirk Thomas, Mike Lautman
+
 0.4.13 (2018-05-02)
 -------------------
 * add build dependency on Qt5 dev package (`#15 <https://github.com/ros-visualization/rqt_image_view/issues/15>`_)
