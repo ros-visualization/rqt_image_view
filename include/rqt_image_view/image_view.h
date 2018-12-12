@@ -109,7 +109,7 @@ protected slots:
 
 protected:
 
-  virtual void callbackImage(const sensor_msgs::msg::Image::ConstPtr& msg);
+  virtual void callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr& msg);
 
   virtual void invertPixels(int x, int y);
 
