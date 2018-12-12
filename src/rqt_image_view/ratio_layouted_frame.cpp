@@ -43,6 +43,8 @@ RatioLayoutedFrame::RatioLayoutedFrame(QWidget* parent, Qt::WindowFlags flags)
   , aspect_ratio_(4, 3)
   , smoothImage_(false)
 {
+  (void)parent;
+  (void)flags;
   connect(this, SIGNAL(delayed_update()), this, SLOT(update()), Qt::QueuedConnection);
 }
 
@@ -155,6 +157,7 @@ void RatioLayoutedFrame::setAspectRatio(unsigned short width, unsigned short hei
 
 void RatioLayoutedFrame::paintEvent(QPaintEvent* event)
 {
+  (void)event;
   QPainter painter(this);
   qimage_mutex_.lock();
   if (!qimage_.isNull())

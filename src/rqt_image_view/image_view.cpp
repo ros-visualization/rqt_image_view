@@ -32,7 +32,7 @@
 
 #include <rqt_image_view/image_view.h>
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 
 #include <cv_bridge/cv_bridge.h>
@@ -121,6 +121,7 @@ void ImageView::shutdownPlugin()
 
 void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::Settings& instance_settings) const
 {
+  (void)plugin_settings;
   QString topic = ui_.topics_combo_box->currentText();
   //qDebug("ImageView::saveSettings() topic '%s'", topic.toStdString().c_str());
   instance_settings.setValue("topic", topic);
@@ -137,6 +138,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
 {
+  (void)plugin_settings;
   bool zoom1_checked = instance_settings.value("zoom1", false).toBool();
   ui_.zoom_1_push_button->setChecked(zoom1_checked);
 
@@ -525,7 +527,7 @@ void ImageView::overlayGrid()
   }
 }
 
-void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstPtr& msg)
+void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr& msg)
 {
   try
   {
