@@ -43,7 +43,7 @@ class ImagePublisher(Node):
         self.tmr = self.create_timer(timer_period, self.timer_callback)
         _, package_path = get_resource('packages', 'rqt_image_view')
         example_image_file = os.path.join(
-            package_path, 'share', 'rqt_image_view', 'resource', 'dirk.jpg')
+            package_path, 'share', 'rqt_image_view', 'resource', 'ros2.png')
 
         self.img = imread(example_image_file)
         self.msg = Image()
