@@ -65,6 +65,9 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   }
   context.addWidget(widget_);
 
+  setColorSchemeList();
+  ui_.color_scheme_combo_box->setCurrentIndex(ui_.color_scheme_combo_box->findText("Gray"));
+
   updateTopicList();
   ui_.topics_combo_box->setCurrentIndex(ui_.topics_combo_box->findText(""));
   connect(ui_.topics_combo_box, SIGNAL(currentIndexChanged(int)), this, SLOT(onTopicChanged(int)));
@@ -178,6 +181,31 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
   if(rotate_state_ >= ROTATE_STATE_COUNT)
     rotate_state_ = ROTATE_0;
   syncRotateLabel();
+}
+
+void ImageView::setColorSchemeList()
+{
+  static const std::map<std::string, int> COLOR_SCHEME_MAP
+  {
+    { "Gray", -1 },  // Special case: no color map
+    { "Autumn", cv::COLORMAP_AUTUMN },
+    { "Bone", cv::COLORMAP_BONE },
+    { "Cool", cv::COLORMAP_COOL },
+    { "Hot", cv::COLORMAP_HOT },
+    { "Hsv", cv::COLORMAP_HSV },
+    { "Jet", cv::COLORMAP_JET },
+    { "Ocean", cv::COLORMAP_OCEAN },
+    { "Pink", cv::COLORMAP_PINK },
+    { "Rainbow", cv::COLORMAP_RAINBOW },
+    { "Spring", cv::COLORMAP_SPRING },
+    { "Summer", cv::COLORMAP_SUMMER },
+    { "Winter", cv::COLORMAP_WINTER }
+  };
+
+  for (const auto& kv : COLOR_SCHEME_MAP)
+  {
+    ui_.color_scheme_combo_box->addItem(QString::fromStdString(kv.first), QVariant(kv.second));
+  }
 }
 
 void ImageView::updateTopicList()
@@ -568,7 +596,16 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
         }
         cv::Mat img_scaled_8u;
         cv::Mat(cv_ptr->image-min).convertTo(img_scaled_8u, CV_8UC1, 255. / (max - min));
-        cv::cvtColor(img_scaled_8u, conversion_mat_, CV_GRAY2RGB);
+
+        const auto color_scheme_index = ui_.color_scheme_combo_box->currentIndex();
+        const auto color_scheme = ui_.color_scheme_combo_box->itemData(color_scheme_index).toInt();
+        if (color_scheme == -1) {
+          cv::cvtColor(img_scaled_8u, conversion_mat_, CV_GRAY2RGB);
+        } else {
+          cv::Mat img_color_scheme;
+          cv::applyColorMap(img_scaled_8u, img_color_scheme, color_scheme);
+          cv::cvtColor(img_color_scheme, conversion_mat_, CV_BGR2RGB);
+        }
       } else {
         qWarning("ImageView.callback_image() could not convert image from '%s' to 'rgb8' (%s)", msg->encoding.c_str(), e.what());
         ui_.image_frame->setImage(QImage());

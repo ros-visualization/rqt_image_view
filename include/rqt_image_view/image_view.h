@@ -76,6 +76,8 @@ public:
 
 protected slots:
 
+  virtual void setColorSchemeList();
+
   virtual void updateTopicList();
 
 protected:
