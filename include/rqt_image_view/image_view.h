@@ -117,7 +117,7 @@ protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
 
-  bool changeImageService(rqt_image_view::SetImageTopic::Request &req,
+  bool setImageService(rqt_image_view::SetImageTopic::Request &req,
          rqt_image_view::SetImageTopic::Response &res);
 
   virtual void invertPixels(int x, int y);

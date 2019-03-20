@@ -115,7 +115,8 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   hide_toolbar_action_->setCheckable(true);
   ui_.image_frame->addAction(hide_toolbar_action_);
   connect(hide_toolbar_action_, SIGNAL(toggled(bool)), this, SLOT(onHideToolbarChanged(bool)));
-  change_topic_service_ = getNodeHandle().advertiseService( getNodeHandle().getNamespace() + std::to_string(context.serialNumber()) + "/change_image_topic", &ImageView::changeImageService, this);
+  change_topic_service_ = getNodeHandle().advertiseService(
+    getNodeHandle().getNamespace() + std::to_string(context.serialNumber()) + "/set_image_topic", &ImageView::setImageService, this);
 }
 
 void ImageView::shutdownPlugin()
@@ -485,7 +486,7 @@ void ImageView::syncRotateLabel()
   }
 }
 
-bool ImageView::changeImageService(rqt_image_view::SetImageTopic::Request  &req,
+bool ImageView::setImageService(rqt_image_view::SetImageTopic::Request &req,
   rqt_image_view::SetImageTopic::Response &res)
 {
   selectTopic( QString::fromStdString(req.image_topic) );
