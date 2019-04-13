@@ -18,12 +18,12 @@
   <depend>cv_bridge</depend>
   <depend>geometry_msgs</depend>
   <depend>image_transport</depend>
-  <depend>message_generation</depend>
-  <depend>qtbase5-dev</depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>qtbase5-dev</build_depend>
   <depend>rqt_gui</depend>
   <depend>rqt_gui_cpp</depend>
   <depend>sensor_msgs</depend>
-  <depend>message_runtime</depend>
+  <exec_depend>message_runtime</exec_depend>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
