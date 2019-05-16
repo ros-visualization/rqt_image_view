@@ -373,10 +373,7 @@ void ImageView::onMousePublish(bool checked)
 
   if(checked)
   {
-    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
-    custom_qos_profile.depth = 1000;
-    pub_mouse_left_ = node_->create_publisher<geometry_msgs::msg::Point>(topicName, custom_qos_profile);
-
+    pub_mouse_left_ = node_->create_publisher<geometry_msgs::msg::Point>(topicName, 1000);
   } else {
     pub_mouse_left_.reset();
   }
