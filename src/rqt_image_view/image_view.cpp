@@ -185,8 +185,10 @@ void ImageView::updateTopicList()
 {
   QSet<QString> message_types;
   message_types.insert("sensor_msgs/Image");
+  message_types.insert("sensor_msgs/msg/Image");
   QSet<QString> message_sub_types;
   message_sub_types.insert("sensor_msgs/CompressedImage");
+  message_sub_types.insert("sensor_msgs/msg/CompressedImage");
 
   // get declared transports
   QList<QString> transports;
