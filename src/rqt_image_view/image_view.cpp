@@ -483,10 +483,10 @@ void ImageView::syncRotateLabel()
   }
 }
 
-void ImageView::invertPixels(int x, int y)
+void ImageView::invertPixels(cv::Mat& image, int x, int y)
 {
-  // Could do 255-conversion_mat_.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
-  cv::Vec3b & pixel = conversion_mat_.at<cv::Vec3b>(cv::Point(x, y));
+  // Could do 255-image.at<cv::Vec3b>(cv::Point(x,y))[i], but that doesn't work well on gray
+  cv::Vec3b & pixel = image.at<cv::Vec3b>(cv::Point(x, y));
   if (pixel[0] + pixel[1] + pixel[2] > 3 * 127)
     pixel = cv::Vec3b(0,0,0);
   else
@@ -532,31 +532,32 @@ QList<int> ImageView::getGridIndices(int size) const
   return indices;
 }
 
-void ImageView::overlayGrid()
+void ImageView::overlayGrid(cv::Mat& image)
 {
   // vertical gridlines
-  QList<int> columns = getGridIndices(conversion_mat_.cols);
+  QList<int> columns = getGridIndices(image.cols);
   for (QList<int>::const_iterator x = columns.begin(); x != columns.end(); ++x)
   {
-    for (int y = 0; y < conversion_mat_.rows; ++y)
+    for (int y = 0; y < image.rows; ++y)
     {
-      invertPixels(*x, y);
+      invertPixels(image, *x, y);
     }
   }
 
   // horizontal gridlines
-  QList<int> rows = getGridIndices(conversion_mat_.rows);
+  QList<int> rows = getGridIndices(image.rows);
   for (QList<int>::const_iterator y = rows.begin(); y != rows.end(); ++y)
   {
-    for (int x = 0; x < conversion_mat_.cols; ++x)
+    for (int x = 0; x < image.cols; ++x)
     {
-      invertPixels(x, *y);
+      invertPixels(image, x, *y);
     }
   }
 }
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
+  cv::Mat conversion_mat_;
   try
   {
     // First let cv_bridge do its magic
@@ -564,7 +565,7 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     conversion_mat_ = cv_ptr->image;
 
     if (num_gridlines_ > 0)
-      overlayGrid();
+      overlayGrid(conversion_mat_);
   }
   catch (cv_bridge::Exception& e)
   {

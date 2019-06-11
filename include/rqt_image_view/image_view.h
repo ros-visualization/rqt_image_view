@@ -116,19 +116,17 @@ protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
 
-  virtual void invertPixels(int x, int y);
+  virtual void invertPixels(cv::Mat& image, int x, int y);
 
   QList<int> getGridIndices(int size) const;
 
-  virtual void overlayGrid();
+  virtual void overlayGrid(cv::Mat& image);
 
   Ui::ImageViewWidget ui_;
 
   QWidget* widget_;
 
   image_transport::Subscriber subscriber_;
-
-  cv::Mat conversion_mat_;
 
 private:
 
