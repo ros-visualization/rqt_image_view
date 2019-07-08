@@ -104,7 +104,7 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
   // Make sure we have enough space for "XXX °"
   ui_.rotate_label->setMinimumWidth(
-    ui_.rotate_label->fontMetrics().width("XXX°")
+    ui_.rotate_label->fontMetrics().horizontalAdvance("XXX°")
   );
 
   hide_toolbar_action_ = new QAction(tr("Hide toolbar"), this);
@@ -213,7 +213,7 @@ void ImageView::updateTopicList()
   // fill combo box
   QList<QString> topics = getTopics(message_types, message_sub_types, transports).values();
   topics.append("");
-  qSort(topics);
+  std::sort(topics.begin(), topics.end());
   ui_.topics_combo_box->clear();
   for (QList<QString>::const_iterator it = topics.begin(); it != topics.end(); it++)
   {
