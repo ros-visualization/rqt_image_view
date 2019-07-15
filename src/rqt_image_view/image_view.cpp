@@ -103,9 +103,17 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   connect(ui_.rotate_right_push_button, SIGNAL(clicked(bool)), this, SLOT(onRotateRight()));
 
   // Make sure we have enough space for "XXX °"
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+  // QFontMetrics::width(QChar) is deprecated starting from qt version 5.11.0
+  // https://doc.qt.io/qt-5/qfontmetrics.html#horizontalAdvance-1
+  ui_.rotate_label->setMinimumWidth(
+    ui_.rotate_label->fontMetrics().horizontalAdvance("XXX°")
+  );
+#else
   ui_.rotate_label->setMinimumWidth(
     ui_.rotate_label->fontMetrics().width("XXX°")
   );
+#endif
 
   hide_toolbar_action_ = new QAction(tr("Hide toolbar"), this);
   hide_toolbar_action_->setCheckable(true);
@@ -213,7 +221,7 @@ void ImageView::updateTopicList()
   // fill combo box
   QList<QString> topics = getTopics(message_types, message_sub_types, transports).values();
   topics.append("");
-  qSort(topics);
+  std::sort(topics.begin(), topics.end());
   ui_.topics_combo_box->clear();
   for (QList<QString>::const_iterator it = topics.begin(); it != topics.end(); it++)
   {
