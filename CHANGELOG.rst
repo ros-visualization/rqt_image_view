@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.3 (2019-10-23)
+------------------
+* Avoid deprecated API (`#28 <https://github.com/ros-visualization/rqt_image_view/issues/28>`_)
+* Contributors: Karsten Knese
+
 1.0.0 (2018-12-11)
 ------------------
 * fix various compiler warnings (`#20 <https://github.com/ros-visualization/rqt_image_view/issues/20>`_)
