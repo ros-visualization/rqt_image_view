@@ -42,6 +42,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPainter>
+#include <QSet>
 
 namespace rqt_image_view {
 
