@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.14 (2020-01-10)
+-------------------
+* fix missing include for QSet (`#31 <https://github.com/ros-visualization/rqt_image_view/issues/31>`_)
+* add color scheme for depth images (`#23 <https://github.com/ros-visualization/rqt_image_view/issues/23>`_)
+
 0.4.13 (2018-05-02)
 -------------------
 * add build dependency on Qt5 dev package (`#15 <https://github.com/ros-visualization/rqt_image_view/issues/15>`_)
