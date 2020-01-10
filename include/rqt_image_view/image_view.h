@@ -49,6 +49,7 @@
 #include <QImage>
 #include <QList>
 #include <QString>
+#include <QSet>
 #include <QSize>
 #include <QWidget>
 
