@@ -557,6 +557,11 @@ void ImageView::overlayGrid()
 
 void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
 {
+  // Make sure conversion_mat_ does not point to some old data (or, in the case
+  // of cv_bridge::toCvShare() to an old message). This is important in the
+  // manual conversion path below.
+  conversion_mat_ = cv::Mat();
+
   try
   {
     // First let cv_bridge do its magic
@@ -627,6 +632,7 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     {
       cv::Mat tmp;
       cv::transpose(conversion_mat_, tmp);
+      conversion_mat_ = cv::Mat(); // conversion_mat_ might point to const msg
       cv::flip(tmp, conversion_mat_, 1);
       break;
     }
@@ -641,6 +647,7 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
     {
       cv::Mat tmp;
       cv::transpose(conversion_mat_, tmp);
+      conversion_mat_ = cv::Mat(); // conversion_mat_ might point to const msg
       cv::flip(tmp, conversion_mat_, 0);
       break;
     }
