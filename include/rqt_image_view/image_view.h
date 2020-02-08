@@ -113,9 +113,9 @@ protected slots:
   virtual void onRotateLeft();
   virtual void onRotateRight();
 
-protected:
-
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
+
+protected:
 
   virtual void invertPixels(int x, int y);
 
@@ -130,6 +130,9 @@ protected:
   image_transport::Subscriber subscriber_;
 
   cv::Mat conversion_mat_;
+
+Q_SIGNALS:
+  void receivedImage(const sensor_msgs::Image::ConstPtr& msg);
 
 private:
 

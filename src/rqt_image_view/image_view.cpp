@@ -43,6 +43,8 @@
 #include <QMessageBox>
 #include <QPainter>
 
+Q_DECLARE_METATYPE(sensor_msgs::Image::ConstPtr)
+
 namespace rqt_image_view {
 
 ImageView::ImageView()
@@ -115,6 +117,13 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   hide_toolbar_action_->setCheckable(true);
   ui_.image_frame->addAction(hide_toolbar_action_);
   connect(hide_toolbar_action_, SIGNAL(toggled(bool)), this, SLOT(onHideToolbarChanged(bool)));
+
+  // Use Qt::QueuedConnection to make sure our callback is called in the GUI
+  // thread.
+  qRegisterMetaType<sensor_msgs::Image::ConstPtr>();
+  connect(this, SIGNAL(receivedImage(sensor_msgs::Image::ConstPtr)),
+          this, SLOT(callbackImage(sensor_msgs::Image::ConstPtr)),
+          Qt::QueuedConnection);
 }
 
 void ImageView::shutdownPlugin()
@@ -335,7 +344,7 @@ void ImageView::onTopicChanged(int index)
     image_transport::ImageTransport it(getNodeHandle());
     image_transport::TransportHints hints(transport.toStdString());
     try {
-      subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::callbackImage, this, hints);
+      subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::receivedImage, this, hints);
       //qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
     } catch (image_transport::TransportLoadException& e) {
       QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());

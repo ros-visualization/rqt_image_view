@@ -80,8 +80,6 @@ public:
 
 signals:
 
-  void delayed_update();
-
   void mouseLeft(int x, int y);
 
 protected slots:
@@ -105,7 +103,6 @@ private:
   QSize aspect_ratio_;
 
   QImage qimage_;
-  mutable QMutex qimage_mutex_;
 
   bool smoothImage_;
 };

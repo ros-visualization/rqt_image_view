@@ -43,7 +43,6 @@ RatioLayoutedFrame::RatioLayoutedFrame(QWidget* parent, Qt::WindowFlags flags)
   , aspect_ratio_(4, 3)
   , smoothImage_(false)
 {
-  connect(this, SIGNAL(delayed_update()), this, SLOT(update()), Qt::QueuedConnection);
 }
 
 RatioLayoutedFrame::~RatioLayoutedFrame()
@@ -58,19 +57,15 @@ const QImage& RatioLayoutedFrame::getImage() const
 QImage RatioLayoutedFrame::getImageCopy() const
 {
   QImage img;
-  qimage_mutex_.lock();
   img = qimage_.copy();
-  qimage_mutex_.unlock();
   return img;
 }
 
 void RatioLayoutedFrame::setImage(const QImage& image)//, QMutex* image_mutex)
 {
-  qimage_mutex_.lock();
   qimage_ = image.copy();
   setAspectRatio(qimage_.width(), qimage_.height());
-  qimage_mutex_.unlock();
-  emit delayed_update();
+  update();
 }
 
 void RatioLayoutedFrame::resizeToFitAspectRatio()
@@ -126,7 +121,6 @@ void RatioLayoutedFrame::setInnerFrameMinimumSize(const QSize& size)
   QSize new_size = size;
   new_size += QSize(2 * border, 2 * border);
   setMinimumSize(new_size);
-  emit delayed_update();
 }
 
 void RatioLayoutedFrame::setInnerFrameMaximumSize(const QSize& size)
@@ -135,7 +129,6 @@ void RatioLayoutedFrame::setInnerFrameMaximumSize(const QSize& size)
   QSize new_size = size;
   new_size += QSize(2 * border, 2 * border);
   setMaximumSize(new_size);
-  emit delayed_update();
 }
 
 void RatioLayoutedFrame::setInnerFrameFixedSize(const QSize& size)
@@ -156,7 +149,6 @@ void RatioLayoutedFrame::setAspectRatio(unsigned short width, unsigned short hei
 void RatioLayoutedFrame::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
-  qimage_mutex_.lock();
   if (!qimage_.isNull())
   {
     resizeToFitAspectRatio();
@@ -182,7 +174,6 @@ void RatioLayoutedFrame::paintEvent(QPaintEvent* event)
     painter.setBrush(gradient);
     painter.drawRect(0, 0, frameRect().width() + 1, frameRect().height() + 1);
   }
-  qimage_mutex_.unlock();
 }
 
 int RatioLayoutedFrame::greatestCommonDivisor(int a, int b)
