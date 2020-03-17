@@ -20,12 +20,13 @@ import sys
 from copy import deepcopy
 
 from ament_index_python.resources import get_resource
+from rclpy.qos import QoSProfile
 
 from cv2 import imread
 
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import qos_profile_default
+from rclpy.qos import qos_profile_sensor_data
 
 from sensor_msgs.msg import Image
 
@@ -35,10 +36,10 @@ class ImagePublisher(Node):
     def __init__(self):
         super().__init__('image_publisher')
         self.i = 0
-        qos_profile = deepcopy(qos_profile_default)
-        qos_profile.depth = 1
+        # qos_profile = deepcopy(qos_profile_sensor_data)
+        update_pub_qos=QoSProfile(depth=100)
 
-        self.pub = self.create_publisher(Image, 'images', qos_profile=qos_profile)
+        self.pub = self.create_publisher(Image, 'images', update_pub_qos)
         timer_period = 0.10
         self.tmr = self.create_timer(timer_period, self.timer_callback)
         _, package_path = get_resource('packages', 'rqt_image_view')
@@ -55,8 +56,8 @@ class ImagePublisher(Node):
 
     def timer_callback(self):
         self.i += 1
-        self.get_logger().info('Publishing Lena: "{0}"'.format(self.i))
-        self.msg.data = self.msg.data[2:] + self.msg.data[:2]
+        self.get_logger().debug('Publishing Lena: "{0}"'.format(self.i))
+        self.msg.data = self.msg.data[6:] + self.msg.data[:6]
         self.pub.publish(self.msg)
 
 
