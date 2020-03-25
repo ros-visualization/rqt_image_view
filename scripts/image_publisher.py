@@ -32,16 +32,16 @@ from sensor_msgs.msg import Image
 
 
 class ImagePublisher(Node):
+    """A publisher that publishes an image on /images"""
 
     def __init__(self):
+        """Initializer"""
         super().__init__('image_publisher')
         self.i = 0
-        # qos_profile = deepcopy(qos_profile_sensor_data)
-        update_pub_qos=QoSProfile(depth=100)
 
-        self.pub = self.create_publisher(Image, 'images', update_pub_qos)
+        self.pub = self.create_publisher(Image, 'images', QoSProfile(depth=100))
         timer_period = 0.10
-        self.tmr = self.create_timer(timer_period, self.timer_callback)
+        self.tmr = self.create_timer(timer_period, self.__timer_callback)
         _, package_path = get_resource('packages', 'rqt_image_view')
         example_image_file = os.path.join(
             package_path, 'share', 'rqt_image_view', 'resource', 'lena.png')
@@ -53,26 +53,28 @@ class ImagePublisher(Node):
         self.msg.width = self.img.shape[1]
         self.msg.encoding = 'rgb8'
         self.msg.step = self.img.shape[1] * self.img.shape[2]
+        self.get_logger().error("yo1")
 
-    def timer_callback(self):
+    def __timer_callback(self):
         self.i += 1
-        self.get_logger().debug('Publishing Lena: "{0}"'.format(self.i))
+        self.get_logger().error('Publishing Lena: "{0}"'.format(self.i))
+        self.msg.header.stamp = self.get_clock().now().to_msg()
         self.msg.data = self.msg.data[6:] + self.msg.data[:6]
         self.pub.publish(self.msg)
 
 
 def main(args=None):
+    """Entry point for cross-platform executable."""
     if args is None:
         args = sys.argv
 
     rclpy.init(args=args)
-
     node = ImagePublisher()
 
-    rclpy.spin(node)
-
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == '__main__':

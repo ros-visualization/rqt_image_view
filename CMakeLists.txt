@@ -92,13 +92,18 @@ install(
   RUNTIME DESTINATION bin/${PROJECT_NAME}
   INCLUDES DESTINATION include)
 
-install(PROGRAMS scripts/rqt_image_view
+install(
+  PROGRAMS scripts/rqt_image_view.py
   DESTINATION lib/${PROJECT_NAME}
+  RENAME rqt_image_view
 )
 
-install(PROGRAMS scripts/image_publisher
+install(
+  PROGRAMS scripts/image_publisher.py
   DESTINATION lib/${PROJECT_NAME}
+  RENAME image_publisher
 )
+
 
 install(
   DIRECTORY include/
