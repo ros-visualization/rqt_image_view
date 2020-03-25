@@ -37,7 +37,7 @@ class ImagePublisher(Node):
     def __init__(self):
         """Initializer"""
         super().__init__('image_publisher')
-        self.i = 0
+        self._i = 0
 
         self.pub = self.create_publisher(Image, 'images', QoSProfile(depth=100))
         timer_period = 0.10
@@ -46,21 +46,24 @@ class ImagePublisher(Node):
         example_image_file = os.path.join(
             package_path, 'share', 'rqt_image_view', 'resource', 'lena.png')
 
-        self.img = imread(example_image_file)
-        self.msg = Image()
-        self.msg.data = [int(b) for b in list(self.img.flatten())]
-        self.msg.height = self.img.shape[0]
-        self.msg.width = self.img.shape[1]
-        self.msg.encoding = 'rgb8'
-        self.msg.step = self.img.shape[1] * self.img.shape[2]
-        self.get_logger().error("yo1")
+        self._img = imread(example_image_file)
+        self._msg = Image()
+        self._msg.data = [int(b) for b in list(self._img.flatten())]
+        self._msg.height = self._img.shape[0]
+        self._msg.width = self._img.shape[1]
+        self._msg.encoding = 'rgb8'
+        self._msg.step = self._img.shape[1] * self._img.shape[2]
+
+        # The amount by which to shift the image each cycle
+        # so that it looks animated
+        self._image_shift = 6
 
     def __timer_callback(self):
-        self.i += 1
-        self.get_logger().error('Publishing Lena: "{0}"'.format(self.i))
-        self.msg.header.stamp = self.get_clock().now().to_msg()
-        self.msg.data = self.msg.data[6:] + self.msg.data[:6]
-        self.pub.publish(self.msg)
+        self._i += 1
+        self.get_logger().debug('Publishing Image: "{0}"'.format(self._i))
+        self._msg.header.stamp = self.get_clock().now().to_msg()
+        self._msg.data = self._msg.data[self._image_shift:] + self._msg.data[:self._image_shift]
+        self.pub.publish(self._msg)
 
 
 def main(args=None):
