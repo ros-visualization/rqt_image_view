@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.15 (2020-04-07)
+-------------------
 * bump CMake minimum version to avoid CMP0048 warning
 
 0.4.14 (2020-01-10)
