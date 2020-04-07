@@ -2,6 +2,10 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* bump CMake minimum version to avoid CMP0048 warning
+
 0.4.14 (2020-01-10)
 -------------------
 * fix missing include for QSet (`#31 <https://github.com/ros-visualization/rqt_image_view/issues/31>`_)
