@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.5 (2020-08-07)
+------------------
 * fix segfault on topic change (`#40 <https://github.com/ros-visualization/rqt_image_view/issues/40>`_)
 * fix ImportError in image_publisher script (`#39 <https://github.com/ros-visualization/rqt_image_view/issues/39>`_)
 
