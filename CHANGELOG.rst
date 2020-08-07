@@ -2,6 +2,10 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix segfault on topic change (`#40 <https://github.com/ros-visualization/rqt_image_view/issues/40>`_)
+
 0.4.15 (2020-04-07)
 -------------------
 * bump CMake minimum version to avoid CMP0048 warning
