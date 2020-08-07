@@ -321,6 +321,8 @@ void ImageView::selectTopic(const QString& topic)
 
 void ImageView::onTopicChanged(int index)
 {
+  conversion_mat_.release();
+
   subscriber_.shutdown();
 
   // reset image on topic change
