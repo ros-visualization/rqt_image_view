@@ -25,7 +25,7 @@ set(rqt_image_view_HDRS
 )
 
 set(rqt_image_view_UIS
-  src/rqt_image_view/image_view.ui
+  resource/image_view.ui
 )
 
 set(rqt_image_view_INCLUDE_DIRECTORIES
