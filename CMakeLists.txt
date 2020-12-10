@@ -25,7 +25,7 @@ set(rqt_image_view_HDRS
 )
 
 set(rqt_image_view_UIS
-  src/rqt_image_view/image_view.ui
+  resource/image_view.ui
 )
 
 set(rqt_image_view_INCLUDE_DIRECTORIES
@@ -71,6 +71,10 @@ find_package(class_loader)
 class_loader_hide_library_symbols(${PROJECT_NAME})
 
 install(FILES plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(DIRECTORY resource
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
