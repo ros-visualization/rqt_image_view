@@ -316,6 +316,9 @@ void ImageView::onTopicChanged(int index)
     image_transport::ImageTransport it(node_);
     const image_transport::TransportHints hints(node_.get(), transport.toStdString());
     try {
+      if (node_->has_parameter("mode")) {
+        node_->undeclare_parameter("mode");
+      }
       subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::callbackImage, this, &hints);
       qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
     } catch (image_transport::TransportLoadException& e) {
