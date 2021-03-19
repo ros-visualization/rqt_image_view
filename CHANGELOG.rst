@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2021-03-19)
+------------------
 * Updated maintainers.
 * Contributors: Mabel Zhang
 
