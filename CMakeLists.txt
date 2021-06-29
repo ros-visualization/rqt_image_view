@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(rqt_image_view)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-deprecated-declarations)
+endif()
+
 find_package(ament_cmake REQUIRED)
 
 if(WIN32)
@@ -66,7 +70,7 @@ include_directories(
   ${rqt_image_view_INCLUDE_DIRECTORIES}
 )
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
   ${rqt_image_view_SRCS}
   ${rqt_image_view_MOCS}
   ${rqt_image_view_UIS_H}
