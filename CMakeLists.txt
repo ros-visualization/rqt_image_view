@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(rqt_image_view)
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-deprecated-declarations)
+endif()
+
 find_package(ament_cmake REQUIRED)
 
 if(WIN32)
