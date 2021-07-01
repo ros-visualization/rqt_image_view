@@ -70,7 +70,7 @@ include_directories(
   ${rqt_image_view_INCLUDE_DIRECTORIES}
 )
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
   ${rqt_image_view_SRCS}
   ${rqt_image_view_MOCS}
   ${rqt_image_view_UIS_H}
