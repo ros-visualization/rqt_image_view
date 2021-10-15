@@ -49,6 +49,7 @@ ImageView::ImageView()
   , widget_(0)
   , num_gridlines_(0)
   , rotate_state_(ROTATE_0)
+  , shutting_down_(false)
 {
   setObjectName("ImageView");
 }
