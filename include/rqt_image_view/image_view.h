@@ -150,6 +150,8 @@ private:
   int num_gridlines_;
 
   RotateState rotate_state_;
+
+  bool shutting_down_;
 };
 
 }
