@@ -49,6 +49,7 @@ ImageView::ImageView()
   , widget_(0)
   , num_gridlines_(0)
   , rotate_state_(ROTATE_0)
+  , shutting_down_(false)
 {
   setObjectName("ImageView");
 }
@@ -123,6 +124,7 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
 
 void ImageView::shutdownPlugin()
 {
+  shutting_down_ = true;
   subscriber_.shutdown();
   pub_mouse_left_.reset();
 }
@@ -538,6 +540,10 @@ void ImageView::overlayGrid()
 
 void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr& msg)
 {
+  if (shutting_down_) {
+    return;
+  }
+
   try
   {
     // First let cv_bridge do its magic
