@@ -53,7 +53,6 @@ set(rqt_image_view_INCLUDE_DIRECTORIES
   ${rqt_gui_cpp_INCLUDE_DIRS}
   ${sensor_msgs_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
-  ${cv_bridge_INCLUDE_DIRS}
   ${Qt5Widgets_INCLUDE_DIRS}
 )
 
@@ -79,7 +78,7 @@ target_link_libraries(
   image_transport::image_transport
   ${sensor_msgs_LIBRARIES}
   ${geometry_msgs_LIBRARIES}
-  ${cv_bridge_LIBRARIES}
+  cv_bridge::cv_bridge
   Qt5::Widgets
 )
 
