@@ -51,7 +51,6 @@ set(rqt_image_view_INCLUDE_DIRECTORIES
   ${rclcpp_INCLUDE_DIRS}
   ${qt_gui_cpp_INCLUDE_DIRS}
   ${rqt_gui_cpp_INCLUDE_DIRS}
-  ${image_transport_INCLUDE_DIRS}
   ${sensor_msgs_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
   ${cv_bridge_INCLUDE_DIRS}
@@ -77,7 +76,7 @@ target_link_libraries(
   ${rclcpp_LIBRARIES}
   ${qt_gui_cpp_LIBRARIES}
   ${rqt_gui_cpp_LIBRARIES}
-  ${image_transport_LIBRARIES}
+  image_transport::image_transport
   ${sensor_msgs_LIBRARIES}
   ${geometry_msgs_LIBRARIES}
   ${cv_bridge_LIBRARIES}
