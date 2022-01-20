@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2022-01-20)
+------------------
 * Use image_transport and cv_bridge targets (`#62 <https://github.com/ros-visualization/rqt_image_view/issues/62>`_)
 * Contributors: Shane Loretz
 
