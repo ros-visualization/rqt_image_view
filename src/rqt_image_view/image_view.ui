@@ -198,6 +198,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QComboBox" name="color_scheme_combo_box">
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToContents</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
