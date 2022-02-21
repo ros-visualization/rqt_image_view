@@ -142,6 +142,7 @@ void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::
   instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
   instance_settings.setValue("smooth_image", ui_.smooth_image_check_box->isChecked());
   instance_settings.setValue("rotate", rotate_state_);
+  instance_settings.setValue("color_scheme", ui_.color_scheme_combo_box->currentIndex());
 }
 
 void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, const qt_gui_cpp::Settings& instance_settings)
@@ -187,6 +188,9 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
   if(rotate_state_ >= ROTATE_STATE_COUNT)
     rotate_state_ = ROTATE_0;
   syncRotateLabel();
+
+  int color_scheme = instance_settings.value("color_scheme", ui_.color_scheme_combo_box->currentIndex()).toInt();
+  ui_.color_scheme_combo_box->setCurrentIndex(color_scheme);
 }
 
 void ImageView::updateTopicList()
