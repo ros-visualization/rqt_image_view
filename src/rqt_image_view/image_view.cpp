@@ -317,10 +317,10 @@ void ImageView::onTopicChanged(int index)
 
   if (!topic.isEmpty())
   {
-    image_transport::ImageTransport it(node_);
     const image_transport::TransportHints hints(node_.get(), transport.toStdString());
     try {
-      subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::callbackImage, this, &hints);
+      subscriber_ = image_transport::create_subscription(node_.get(), topic.toStdString(), std::bind(&ImageView::callbackImage, this, std::placeholders::_1), 
+        hints.getTransport(), rmw_qos_profile_sensor_data);
       qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
     } catch (image_transport::TransportLoadException& e) {
       QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
