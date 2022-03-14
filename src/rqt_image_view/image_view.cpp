@@ -115,12 +115,15 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext& context)
   hide_toolbar_action_->setCheckable(true);
   ui_.image_frame->addAction(hide_toolbar_action_);
   connect(hide_toolbar_action_, SIGNAL(toggled(bool)), this, SLOT(onHideToolbarChanged(bool)));
+  change_topic_service_ = getNodeHandle().advertiseService(
+    getNodeHandle().getNamespace() + std::to_string(context.serialNumber()) + "/set_image_topic", &ImageView::setImageService, this);
 }
 
 void ImageView::shutdownPlugin()
 {
   subscriber_.shutdown();
   pub_mouse_left_.shutdown();
+  change_topic_service_.shutdown();
 }
 
 void ImageView::saveSettings(qt_gui_cpp::Settings& plugin_settings, qt_gui_cpp::Settings& instance_settings) const
@@ -487,6 +490,15 @@ void ImageView::syncRotateLabel()
     case ROTATE_180: ui_.rotate_label->setText("180°"); break;
     case ROTATE_270: ui_.rotate_label->setText("270°"); break;
   }
+}
+
+bool ImageView::setImageService(rqt_image_view::SetImageTopic::Request &req,
+  rqt_image_view::SetImageTopic::Response &res)
+{
+  selectTopic( QString::fromStdString(req.image_topic) );
+  updateTopicList();
+
+  return true;
 }
 
 void ImageView::invertPixels(int x, int y)
