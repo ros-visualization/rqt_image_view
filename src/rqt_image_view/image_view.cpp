@@ -319,8 +319,15 @@ void ImageView::onTopicChanged(int index)
   {
     const image_transport::TransportHints hints(node_.get(), transport.toStdString());
     try {
-      subscriber_ = image_transport::create_subscription(node_.get(), topic.toStdString(), std::bind(&ImageView::callbackImage, this, std::placeholders::_1), 
-        hints.getTransport(), rmw_qos_profile_sensor_data);
+      auto subscription_options = rclcpp::SubscriptionOptions();
+      subscription_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+      subscriber_ = image_transport::create_subscription(
+        node_.get(),
+        topic.toStdString(),
+        std::bind(&ImageView::callbackImage, this, std::placeholders::_1),
+        hints.getTransport(),
+        rmw_qos_profile_sensor_data,
+        subscription_options);
       qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
     } catch (image_transport::TransportLoadException& e) {
       QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
