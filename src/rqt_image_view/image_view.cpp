@@ -320,7 +320,8 @@ void ImageView::onTopicChanged(int index)
     const image_transport::TransportHints hints(node_.get(), transport.toStdString());
     try {
       auto subscription_options = rclcpp::SubscriptionOptions();
-      subscription_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
+      // TODO(jacobperron): Enable once ROS CLI args are supported https://github.com/ros-visualization/rqt/issues/262
+      // subscription_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
       subscriber_ = image_transport::create_subscription(
         node_.get(),
         topic.toStdString(),
