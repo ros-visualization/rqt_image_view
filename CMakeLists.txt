@@ -46,23 +46,9 @@ set(rqt_image_view_UIS
   src/rqt_image_view/image_view.ui
 )
 
-set(rqt_image_view_INCLUDE_DIRECTORIES
-  include
-  ${rclcpp_INCLUDE_DIRS}
-  ${qt_gui_cpp_INCLUDE_DIRS}
-  ${rqt_gui_cpp_INCLUDE_DIRS}
-  ${sensor_msgs_INCLUDE_DIRS}
-  ${geometry_msgs_INCLUDE_DIRS}
-  ${Qt5Widgets_INCLUDE_DIRS}
-)
-
 qt5_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
 
 qt5_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
-
-include_directories(
-  ${rqt_image_view_INCLUDE_DIRECTORIES}
-)
 
 add_library(${PROJECT_NAME} SHARED
   ${rqt_image_view_SRCS}
@@ -70,25 +56,28 @@ add_library(${PROJECT_NAME} SHARED
   ${rqt_image_view_UIS_H}
 )
 
-target_link_libraries(
-  ${PROJECT_NAME}
-  ${rclcpp_LIBRARIES}
-  ${qt_gui_cpp_LIBRARIES}
-  ${rqt_gui_cpp_LIBRARIES}
+target_include_directories(${PROJECT_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  ${rclcpp_TARGETS}
+  ${qt_gui_cpp_TARGETS}
+  ${rqt_gui_cpp_TARGETS}
   image_transport::image_transport
-  ${sensor_msgs_LIBRARIES}
-  ${geometry_msgs_LIBRARIES}
-  cv_bridge::cv_bridge
+  ${sensor_msgs_TARGETS}
+  ${geometry_msgs_TARGETS}
   Qt5::Widgets
 )
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  cv_bridge::cv_bridge)
 
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION bin/${PROJECT_NAME}
-  INCLUDES DESTINATION include)
+  RUNTIME DESTINATION bin/${PROJECT_NAME})
 
 install(PROGRAMS scripts/rqt_image_view
   DESTINATION lib/${PROJECT_NAME}
@@ -100,7 +89,7 @@ install(PROGRAMS scripts/image_publisher
 
 install(
   DIRECTORY include/
-  DESTINATION include
+  DESTINATION include/${PROJECT_NAME}
 )
 
 install(FILES plugin.xml
@@ -113,7 +102,11 @@ install(DIRECTORY resource
 
 pluginlib_export_plugin_description_file(rqt_gui "plugin.xml")
 
-ament_export_include_directories(include)
+# Export old-style CMake variables
+ament_export_include_directories("include/${PROJECT_NAME}")
 ament_export_libraries(${PROJECT_NAME})
+
+# Export new-style CMake variables
+ament_export_targets(${PROJECT_NAME})
 
 ament_package()
