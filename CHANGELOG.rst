@@ -2,6 +2,16 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Install headers to include/${PROJECT_NAME} (`#63 <https://github.com/ros-visualization/rqt_image_view/issues/63>`_)
+* Using "sensor data" QoS profile with BEST_EFFORT (`#67 <https://github.com/ros-visualization/rqt_image_view/issues/67>`_)
+* fix: modify qt deprecation warning (`#68 <https://github.com/ros-visualization/rqt_image_view/issues/68>`_)
+* [FIX] add missing QComboBox to ui (`#66 <https://github.com/ros-visualization/rqt_image_view/issues/66>`_)
+* [Rolling] Remember color scheme (`#64 <https://github.com/ros-visualization/rqt_image_view/issues/64>`_)
+* Remember color scheme
+* Contributors: Daisuke Nishimatsu, Karl Schulz, Matthijs van der Burgh, Shane Loretz, wodtko
+
 1.1.2 (2022-01-20)
 ------------------
 * Use image_transport and cv_bridge targets (`#62 <https://github.com/ros-visualization/rqt_image_view/issues/62>`_)
