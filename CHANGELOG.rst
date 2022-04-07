@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2022-04-07)
+------------------
 * Install headers to include/${PROJECT_NAME} (`#63 <https://github.com/ros-visualization/rqt_image_view/issues/63>`_)
 * Using "sensor data" QoS profile with BEST_EFFORT (`#67 <https://github.com/ros-visualization/rqt_image_view/issues/67>`_)
 * fix: modify qt deprecation warning (`#68 <https://github.com/ros-visualization/rqt_image_view/issues/68>`_)
