@@ -42,6 +42,7 @@
 #include <ros/macros.h>
 #include <sensor_msgs/Image.h>
 #include <geometry_msgs/Point.h>
+#include <topic_tools/shape_shifter.h>
 
 #include <opencv2/core/core.hpp>
 
@@ -116,6 +117,7 @@ protected slots:
 protected:
 
   virtual void callbackImage(const sensor_msgs::Image::ConstPtr& msg);
+  virtual void callbackMessage(const topic_tools::ShapeShifter::ConstPtr &msg);
 
   virtual void invertPixels(int x, int y);
 
@@ -128,6 +130,7 @@ protected:
   QWidget* widget_;
 
   image_transport::Subscriber subscriber_;
+  ros::Subscriber subscriber_shape_shifter_;
 
   cv::Mat conversion_mat_;
 

@@ -334,17 +334,26 @@ void ImageView::onTopicChanged(int index)
 
   QStringList parts = ui_.topics_combo_box->itemData(index).toString().split(" ");
   QString topic = parts.first();
-  QString transport = parts.length() == 2 ? parts.last() : "raw";
-
   if (!topic.isEmpty())
   {
-    image_transport::ImageTransport it(getNodeHandle());
-    image_transport::TransportHints hints(transport.toStdString());
-    try {
-      subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::callbackImage, this, hints);
-      //qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'", topic.toStdString().c_str(), subscriber_.getTransport().c_str());
-    } catch (image_transport::TransportLoadException& e) {
-      QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
+    if (parts.length() != 2)
+    {
+      // we cannot identify transport here, determine it after receiving the first message.
+      subscriber_shape_shifter_ =
+        getNodeHandle().subscribe(topic.toStdString(), 1, &ImageView::callbackMessage, this);
+    }
+    else
+    {
+      QString transport = parts.last();
+
+      image_transport::ImageTransport it(getNodeHandle());
+      image_transport::TransportHints hints(transport.toStdString());
+      try {
+        subscriber_ = it.subscribe(topic.toStdString(), 1, &ImageView::callbackImage, this, hints);
+      } catch (image_transport::TransportLoadException& e)
+      {
+        QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
+      }
     }
   }
 
@@ -665,6 +674,29 @@ void ImageView::callbackImage(const sensor_msgs::Image::ConstPtr& msg)
   // Need to update the zoom 1 every new image in case the image aspect ratio changed,
   // though could check and see if the aspect ratio changed or not.
   onZoom1(ui_.zoom_1_push_button->isChecked());
+}
+
+void ImageView::callbackMessage(const topic_tools::ShapeShifter::ConstPtr& msg)
+{
+  image_transport::ImageTransport it(getNodeHandle());
+  std::string topic = subscriber_shape_shifter_.getTopic();
+  std::string transport = "raw";
+  if (msg->getDataType() == "sensor_msgs/CompressedImage")
+  {
+    QString q_topic(topic.c_str());
+    topic = q_topic.mid(0, q_topic.lastIndexOf("/")).toStdString();
+    transport = q_topic.mid(q_topic.lastIndexOf("/") + 1).toStdString();
+  }
+  image_transport::TransportHints hints(transport);
+  try
+  {
+    subscriber_ = it.subscribe(topic, 1, &ImageView::callbackImage, this, hints);
+    subscriber_shape_shifter_.shutdown();
+  }
+  catch (const image_transport::TransportLoadException& e)
+  {
+    ROS_ERROR_STREAM("Loading image transport plugin failed: " << e.what());
+  }
 }
 }
 
