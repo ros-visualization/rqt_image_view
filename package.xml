@@ -1,4 +1,4 @@
-<package>
+<package format="3">
   <name>rqt_image_view</name>
   <version>0.4.16</version>
   <description>rqt_image_view provides a GUI plugin for displaying images using image_transport.</description>
