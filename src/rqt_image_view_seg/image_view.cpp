@@ -422,7 +422,7 @@ namespace rqt_image_view_seg
       pub_mouse_left_ = getNodeHandle().advertise<geometry_msgs::Point>("/rqt_image_segmentation/click_point", 1000);
       segmented_image_pub_ = getNodeHandle().advertise<sensor_msgs::Image>("/rqt_image_segmentation/masked_image", 1000);
       mask_pub_ = getNodeHandle().advertise<sensor_msgs::Image>("/rqt_image_segmentation/mask", 1000);
-      segmentation_client_ = getNodeHandle().serviceClient<ros_sam::Segmentation>("/sam_node/segment");
+      segmentation_client_ = getNodeHandle().serviceClient<ros_sam_msgs::Segmentation>("/sam_node/segment");
     }
     else
     {
@@ -484,7 +484,7 @@ namespace rqt_image_view_seg
 
         pub_mouse_left_.publish(clickLocation);
 
-        ros_sam::Segmentation srv;
+        ros_sam_msgs::Segmentation srv;
         srv.request.image = last_img_msg_;
         srv.request.query_points = clicked_points_;
 

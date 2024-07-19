@@ -29,7 +29,7 @@
   <build_depend>rqt_gui</build_depend>
   <build_depend>rqt_gui_cpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
-  <build_depend>ros_sam</build_depend>
+  <build_depend>ros_sam_msgs</build_depend>
   
   <exec_depend>cv_bridge</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
@@ -37,7 +37,7 @@
   <exec_depend>rqt_gui</exec_depend>
   <exec_depend>rqt_gui_cpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>ros_sam</exec_depend>
+  <exec_depend>ros_sam_msgs</exec_depend>
 
   <export>
     <rqt_gui plugin="${prefix}/plugin.xml"/>

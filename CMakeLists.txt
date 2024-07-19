@@ -5,7 +5,7 @@ project(rqt_image_view_seg)
 add_compile_options(-std=c++11)
 
 # Load catkin and all dependencies required for this package
-find_package(catkin REQUIRED COMPONENTS rqt_gui rqt_gui_cpp image_transport sensor_msgs geometry_msgs cv_bridge ros_sam)
+find_package(catkin REQUIRED COMPONENTS rqt_gui rqt_gui_cpp image_transport sensor_msgs geometry_msgs cv_bridge ros_sam_msgs)
 
 if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
   find_package(Qt5Widgets REQUIRED)

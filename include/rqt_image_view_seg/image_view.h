@@ -51,7 +51,7 @@
 
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <ros_sam/Segmentation.h>
+#include <ros_sam_msgs/Segmentation.h>
 
 #include <atomic>  
 
