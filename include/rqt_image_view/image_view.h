@@ -33,7 +33,7 @@
 #ifndef rqt_image_view__ImageView_H
 #define rqt_image_view__ImageView_H
 
-#include <rqt_gui_cpp/plugin.h>
+#include <rqt_gui_cpp/plugin.hpp>
 
 #include <ui_image_view.h>
 
