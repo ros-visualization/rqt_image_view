@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.18 (2025-04-09)
+-------------------
 * [ROS-O] no longer use c++11 (`#72 <https://github.com/ros-visualization/rqt_image_view/issues/72>`_)
 * Contributors: Lucas Walter, Matthijs van der Burgh
 
