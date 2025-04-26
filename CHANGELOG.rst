@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Bump cmake_minimum_required to avoid deprecation (`#88 <https://github.com/ros-visualization/rqt_image_view/issues/88>`_)
+* Contributors: Arne Hitzmann
+
 0.4.18 (2025-04-09)
 -------------------
 * [ROS-O] no longer use c++11 (`#72 <https://github.com/ros-visualization/rqt_image_view/issues/72>`_)
