@@ -67,7 +67,9 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext & context)
   context.addWidget(widget_);
 
   setColorSchemeList();
+  // set default color scheme to Gray
   ui_.color_scheme_combo_box->setCurrentIndex(ui_.color_scheme_combo_box->findText("Gray"));
+  ui_.color_scheme_combo_box->setCurrentText("Gray");
 
   updateTopicList();
   ui_.topics_combo_box->setCurrentIndex(ui_.topics_combo_box->findText(""));
@@ -203,9 +205,9 @@ void ImageView::restoreSettings(
   }
   syncRotateLabel();
 
-  int color_scheme = instance_settings.value("color_scheme",
-      ui_.color_scheme_combo_box->currentIndex()).toInt();
-  ui_.color_scheme_combo_box->setCurrentIndex(color_scheme);
+  // set default color scheme to Gray
+  ui_.color_scheme_combo_box->setCurrentIndex(ui_.color_scheme_combo_box->findText("Gray"));
+  ui_.color_scheme_combo_box->setCurrentText("Gray");
 }
 
 void ImageView::setColorSchemeList()
