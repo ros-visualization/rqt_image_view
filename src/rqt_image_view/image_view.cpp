@@ -62,7 +62,7 @@ static const std::map<std::string, int> COLOR_SCHEME_MAP
   { "Spring", cv::COLORMAP_SPRING },
   { "Summer", cv::COLORMAP_SUMMER },
   { "Winter", cv::COLORMAP_WINTER }
-};
+};  // following OpenCV options https://docs.opencv.org/4.x/d3/d50/group__imgproc__colormap.html
 
 ImageView::ImageView()
 : rqt_gui_cpp::Plugin()
