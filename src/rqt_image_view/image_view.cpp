@@ -46,6 +46,24 @@
 
 namespace rqt_image_view
 {
+
+static const std::map<std::string, int> COLOR_SCHEME_MAP
+{
+  { "Gray", -1 },  // Special case: no color map
+  { "Autumn", cv::COLORMAP_AUTUMN },
+  { "Bone", cv::COLORMAP_BONE },
+  { "Cool", cv::COLORMAP_COOL },
+  { "Hot", cv::COLORMAP_HOT },
+  { "Hsv", cv::COLORMAP_HSV },
+  { "Jet", cv::COLORMAP_JET },
+  { "Ocean", cv::COLORMAP_OCEAN },
+  { "Pink", cv::COLORMAP_PINK },
+  { "Rainbow", cv::COLORMAP_RAINBOW },
+  { "Spring", cv::COLORMAP_SPRING },
+  { "Summer", cv::COLORMAP_SUMMER },
+  { "Winter", cv::COLORMAP_WINTER }
+};
+
 ImageView::ImageView()
 : rqt_gui_cpp::Plugin()
   , widget_(0)
@@ -66,7 +84,12 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext & context)
   }
   context.addWidget(widget_);
 
-  setColorSchemeList();
+  // set the color scheme list in the UI
+  for (const auto& kv : COLOR_SCHEME_MAP)
+  {
+    ui_.color_scheme_combo_box->addItem(QString::fromStdString(kv.first), QVariant(kv.second));
+  }
+
   // set default color scheme to Gray
   ui_.color_scheme_combo_box->setCurrentIndex(ui_.color_scheme_combo_box->findText("Gray"));
   ui_.color_scheme_combo_box->setCurrentText("Gray");
@@ -208,31 +231,6 @@ void ImageView::restoreSettings(
   // set default color scheme to Gray
   ui_.color_scheme_combo_box->setCurrentIndex(ui_.color_scheme_combo_box->findText("Gray"));
   ui_.color_scheme_combo_box->setCurrentText("Gray");
-}
-
-void ImageView::setColorSchemeList()
-{
-  static const std::map<std::string, int> COLOR_SCHEME_MAP
-  {
-    { "Gray", -1 },  // Special case: no color map
-    { "Autumn", cv::COLORMAP_AUTUMN },
-    { "Bone", cv::COLORMAP_BONE },
-    { "Cool", cv::COLORMAP_COOL },
-    { "Hot", cv::COLORMAP_HOT },
-    { "Hsv", cv::COLORMAP_HSV },
-    { "Jet", cv::COLORMAP_JET },
-    { "Ocean", cv::COLORMAP_OCEAN },
-    { "Pink", cv::COLORMAP_PINK },
-    { "Rainbow", cv::COLORMAP_RAINBOW },
-    { "Spring", cv::COLORMAP_SPRING },
-    { "Summer", cv::COLORMAP_SUMMER },
-    { "Winter", cv::COLORMAP_WINTER }
-  };
-
-  for (const auto& kv : COLOR_SCHEME_MAP)
-  {
-    ui_.color_scheme_combo_box->addItem(QString::fromStdString(kv.first), QVariant(kv.second));
-  }
 }
 
 void ImageView::updateTopicList()

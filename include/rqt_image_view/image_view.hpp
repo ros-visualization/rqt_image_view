@@ -80,8 +80,6 @@ public:
 protected slots:
   virtual void updateTopicList();
 
-  virtual void setColorSchemeList();
-
 protected:
   virtual QSet<QString> getTopics(
     const QSet<QString> & message_types,
