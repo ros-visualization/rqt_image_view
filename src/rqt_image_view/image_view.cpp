@@ -204,7 +204,7 @@ void ImageView::updateTopicList()
 
   // get declared transports
   QList<QString> transports;
-  image_transport::ImageTransport it{image_transport::RequiredInterfaces(*node_)};
+  image_transport::ImageTransport it{*node_};
   std::vector<std::string> declared = it.getDeclaredTransports();
   for (std::vector<std::string>::const_iterator it = declared.begin(); it != declared.end(); it++)
   {
@@ -317,13 +317,13 @@ void ImageView::onTopicChanged(int index)
 
   if (!topic.isEmpty())
   {
-    const image_transport::TransportHints hints(image_transport::RequiredInterfaces(*node_), transport.toStdString());
+    const image_transport::TransportHints hints(*node_, transport.toStdString());
     try {
       auto subscription_options = rclcpp::SubscriptionOptions();
       // TODO(jacobperron): Enable once ROS CLI args are supported https://github.com/ros-visualization/rqt/issues/262
       // subscription_options.qos_overriding_options = rclcpp::QosOverridingOptions::with_default_policies();
       subscriber_ = image_transport::create_subscription(
-        image_transport::RequiredInterfaces(*node_),
+        *node_,
         topic.toStdString(),
         std::bind(&ImageView::callbackImage, this, std::placeholders::_1),
         hints.getTransport(),
