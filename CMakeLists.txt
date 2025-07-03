@@ -109,4 +109,11 @@ ament_export_libraries(${PROJECT_NAME})
 # Export new-style CMake variables
 ament_export_targets(${PROJECT_NAME})
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  set(ament_cmake_cppcheck_LANGUAGE "c++")
+  set(ament_cmake_uncrustify_ADDITIONAL_ARGS LANGUAGE "C++")
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_package()
