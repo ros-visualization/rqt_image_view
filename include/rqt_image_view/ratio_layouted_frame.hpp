@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
-#define RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
+#ifndef RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_HPP_
+#define RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_HPP_
 
 #include <QFrame>
 #include <QImage>
@@ -106,4 +106,4 @@ private:
 
 }  // namespace rqt_image_view
 
-#endif  // RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
+#endif  // RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_HPP_
