@@ -33,6 +33,8 @@
 
 #include <vector>
 
+#include <vector>
+
 #include <pluginlib/class_list_macros.hpp>
 #include <rqt_image_view/image_view.hpp>
 #include <sensor_msgs/image_encodings.hpp>

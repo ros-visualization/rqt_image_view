@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RQT_IMAGE_VIEW__IMAGE_VIEW_H_
-#define RQT_IMAGE_VIEW__IMAGE_VIEW_H_
+#ifndef RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
+#define RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
 
 #warning This header is obsolete, please include rqt_image_view/ratio_layouted_frame.hpp instead
 
