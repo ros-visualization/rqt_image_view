@@ -30,11 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <rqt_image_view/image_view.h>
 
 #include <vector>
 
 #include <pluginlib/class_list_macros.hpp>
+#include <rqt_image_view/image_view.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 
 #include <cv_bridge/cv_bridge.hpp>
