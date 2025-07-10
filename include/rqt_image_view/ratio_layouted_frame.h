@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef rqt_image_view__RatioLayoutedFrame_H
-#define rqt_image_view__RatioLayoutedFrame_H
+#ifndef RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
+#define RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
 
 #include <QFrame>
 #include <QImage>
@@ -42,8 +42,8 @@
 #include <QRect>
 #include <QSize>
 
-namespace rqt_image_view {
-
+namespace rqt_image_view
+{
 /**
  * RatioLayoutedFrame is a layout containing a single frame with a fixed aspect ratio.
  * The default aspect ratio is 4:3.
@@ -51,56 +51,50 @@ namespace rqt_image_view {
 class RatioLayoutedFrame
   : public QFrame
 {
-
   Q_OBJECT
 
 public:
-
-  RatioLayoutedFrame(QWidget* parent, Qt::WindowFlags flags = QFlag{0});
+  explicit RatioLayoutedFrame(QWidget * parent, Qt::WindowFlags flags = QFlag{0});
 
   virtual ~RatioLayoutedFrame();
 
-  const QImage& getImage() const;
+  const QImage & getImage() const;
 
   QImage getImageCopy() const;
 
-  void setImage(const QImage& image);
+  void setImage(const QImage & image);
 
   QRect getAspectRatioCorrectPaintArea();
 
   void resizeToFitAspectRatio();
 
-  void setOuterLayout(QHBoxLayout* outer_layout);
+  void setOuterLayout(QHBoxLayout * outer_layout);
 
-  void setInnerFrameMinimumSize(const QSize& size);
+  void setInnerFrameMinimumSize(const QSize & size);
 
-  void setInnerFrameMaximumSize(const QSize& size);
+  void setInnerFrameMaximumSize(const QSize & size);
 
-  void setInnerFrameFixedSize(const QSize& size);
+  void setInnerFrameFixedSize(const QSize & size);
 
 signals:
-
   void delayed_update();
 
   void mouseLeft(int x, int y);
 
 protected slots:
-
   void onSmoothImageChanged(bool checked);
 
 protected:
+  void setAspectRatio(std::uint16_t width, std::uint16_t height);
 
-  void setAspectRatio(unsigned short width, unsigned short height);
-
-  void paintEvent(QPaintEvent* event);
+  void paintEvent(QPaintEvent * event);
 
 private:
-
   static int greatestCommonDivisor(int a, int b);
 
   void mousePressEvent(QMouseEvent * mouseEvent);
 
-  QHBoxLayout* outer_layout_;
+  QHBoxLayout * outer_layout_;
 
   QSize aspect_ratio_;
 
@@ -110,6 +104,6 @@ private:
   bool smoothImage_;
 };
 
-}
+}  // namespace rqt_image_view
 
-#endif // rqt_image_view__RatioLayoutedFrame_H
+#endif  // RQT_IMAGE_VIEW__RATIO_LAYOUTED_FRAME_H_
