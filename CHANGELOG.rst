@@ -2,6 +2,13 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.0 (2025-07-11)
+------------------
+* Deprecated C headers (`#92 <https://github.com/ros-visualization/rqt_image_view/issues/92>`_)
+* Added common linters (`#91 <https://github.com/ros-visualization/rqt_image_view/issues/91>`_)
+* update plugin.h to plugin.hpp (`#86 <https://github.com/ros-visualization/rqt_image_view/issues/86>`_)
+* Contributors: Alejandro Hernández Cordero, Zhaoyuan Cheng
+
 1.3.0 (2024-04-17)
 ------------------
 * include cv_bridge.hpp instead of cv_bridge.h (`#80 <https://github.com/ros-visualization/rqt_image_view/issues/80>`_)
