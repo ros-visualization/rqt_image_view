@@ -49,19 +49,19 @@ namespace rqt_image_view
 
 static const std::map<std::string, int> COLOR_SCHEME_MAP
 {
-  { "Gray", -1 },  // Special case: no color map
-  { "Autumn", cv::COLORMAP_AUTUMN },
-  { "Bone", cv::COLORMAP_BONE },
-  { "Cool", cv::COLORMAP_COOL },
-  { "Hot", cv::COLORMAP_HOT },
-  { "Hsv", cv::COLORMAP_HSV },
-  { "Jet", cv::COLORMAP_JET },
-  { "Ocean", cv::COLORMAP_OCEAN },
-  { "Pink", cv::COLORMAP_PINK },
-  { "Rainbow", cv::COLORMAP_RAINBOW },
-  { "Spring", cv::COLORMAP_SPRING },
-  { "Summer", cv::COLORMAP_SUMMER },
-  { "Winter", cv::COLORMAP_WINTER }
+  {"Gray", -1},  // Special case: no color map
+  {"Autumn", cv::COLORMAP_AUTUMN},
+  {"Bone", cv::COLORMAP_BONE},
+  {"Cool", cv::COLORMAP_COOL},
+  {"Hot", cv::COLORMAP_HOT},
+  {"Hsv", cv::COLORMAP_HSV},
+  {"Jet", cv::COLORMAP_JET},
+  {"Ocean", cv::COLORMAP_OCEAN},
+  {"Pink", cv::COLORMAP_PINK},
+  {"Rainbow", cv::COLORMAP_RAINBOW},
+  {"Spring", cv::COLORMAP_SPRING},
+  {"Summer", cv::COLORMAP_SUMMER},
+  {"Winter", cv::COLORMAP_WINTER}
 };  // following OpenCV options https://docs.opencv.org/4.x/d3/d50/group__imgproc__colormap.html
 
 ImageView::ImageView()
@@ -85,8 +85,7 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext & context)
   context.addWidget(widget_);
 
   // set the color scheme list in the UI
-  for (const auto& kv : COLOR_SCHEME_MAP)
-  {
+  for (const auto & kv : COLOR_SCHEME_MAP) {
     ui_.color_scheme_combo_box->addItem(QString::fromStdString(kv.first), QVariant(kv.second));
   }
 
