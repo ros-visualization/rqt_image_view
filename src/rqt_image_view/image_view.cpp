@@ -618,7 +618,6 @@ void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & ms
         }
         cv::Mat img_scaled_8u;
         cv::Mat(cv_ptr->image - min).convertTo(img_scaled_8u, CV_8UC1, 255. / (max - min));
-        // cv::cvtColor(img_scaled_8u, conversion_mat_, CV_GRAY2RGB);
 
         const auto color_scheme_index = ui_.color_scheme_combo_box->currentIndex();
         const auto color_scheme = ui_.color_scheme_combo_box->itemData(color_scheme_index).toInt();
