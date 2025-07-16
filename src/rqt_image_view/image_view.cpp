@@ -44,11 +44,6 @@
 
 namespace rqt_image_view {
 
-<<<<<<< HEAD
-=======
-namespace rqt_image_view
-{
-
 static const std::map<std::string, int> COLOR_SCHEME_MAP
 {
   {"Gray", -1},  // Special case: no color map
@@ -66,7 +61,6 @@ static const std::map<std::string, int> COLOR_SCHEME_MAP
   {"Winter", cv::COLORMAP_WINTER}
 };  // following OpenCV options https://docs.opencv.org/4.x/d3/d50/group__imgproc__colormap.html
 
->>>>>>> 73d79e7 (Porting the color scheme for 32FC1 encoding from Noetic (#90))
 ImageView::ImageView()
   : rqt_gui_cpp::Plugin()
   , widget_(0)
@@ -221,14 +215,9 @@ void ImageView::restoreSettings(const qt_gui_cpp::Settings& plugin_settings, con
     rotate_state_ = ROTATE_0;
   syncRotateLabel();
 
-<<<<<<< HEAD
-  int color_scheme = instance_settings.value("color_scheme", ui_.color_scheme_combo_box->currentIndex()).toInt();
-  ui_.color_scheme_combo_box->setCurrentIndex(color_scheme);
-=======
   // set default color scheme to Gray
   ui_.color_scheme_combo_box->setCurrentIndex(ui_.color_scheme_combo_box->findText("Gray"));
   ui_.color_scheme_combo_box->setCurrentText("Gray");
->>>>>>> 73d79e7 (Porting the color scheme for 32FC1 encoding from Noetic (#90))
 }
 
 void ImageView::updateTopicList()
@@ -626,10 +615,6 @@ void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr& msg
           }
         }
         cv::Mat img_scaled_8u;
-<<<<<<< HEAD
-        cv::Mat(cv_ptr->image-min).convertTo(img_scaled_8u, CV_8UC1, 255. / (max - min));
-        cv::cvtColor(img_scaled_8u, conversion_mat_, CV_GRAY2RGB);
-=======
         cv::Mat(cv_ptr->image - min).convertTo(img_scaled_8u, CV_8UC1, 255. / (max - min));
 
         const auto color_scheme_index = ui_.color_scheme_combo_box->currentIndex();
@@ -644,7 +629,6 @@ void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr& msg
           cv::applyColorMap(img_scaled_8u, img_color_scheme, color_scheme);
           cv::cvtColor(img_color_scheme, conversion_mat_, CV_BGR2RGB);
         }
->>>>>>> 73d79e7 (Porting the color scheme for 32FC1 encoding from Noetic (#90))
       } else {
         qWarning("ImageView.callback_image() could not convert image from '%s' to 'rgb8' (%s)", msg->encoding.c_str(), e.what());
         ui_.image_frame->setImage(QImage());
