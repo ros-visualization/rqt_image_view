@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.1 (2025-07-16)
+------------------
+* Porting the color scheme for 32FC1 encoding from Noetic (`#90 <https://github.com/ros-visualization/rqt_image_view/issues/90>`_)
+* Contributors: Fabien
+
 2.0.0 (2025-07-11)
 ------------------
 * Deprecated C headers (`#92 <https://github.com/ros-visualization/rqt_image_view/issues/92>`_)
