@@ -291,7 +291,7 @@
   <customwidget>
    <class>rqt_image_view::RatioLayoutedFrame</class>
    <extends>QFrame</extends>
-   <header>rqt_image_view/ratio_layouted_frame.h</header>
+   <header>rqt_image_view/ratio_layouted_frame.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -38,8 +38,8 @@ set(rqt_image_view_SRCS
 )
 
 set(rqt_image_view_HDRS
-  include/rqt_image_view/image_view.h
-  include/rqt_image_view/ratio_layouted_frame.h
+  include/rqt_image_view/image_view.hpp
+  include/rqt_image_view/ratio_layouted_frame.hpp
 )
 
 set(rqt_image_view_UIS
@@ -108,5 +108,10 @@ ament_export_libraries(${PROJECT_NAME})
 
 # Export new-style CMake variables
 ament_export_targets(${PROJECT_NAME})
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_package()
