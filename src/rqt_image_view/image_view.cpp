@@ -352,8 +352,7 @@ void ImageView::onTopicChanged(int index)
   QString topic = parts.first();
   QString transport = parts.length() == 2 ? parts.last() : "raw";
 
-  if (!topic.isEmpty())
-  {
+  if (!topic.isEmpty()) {
     const image_transport::TransportHints hints(*node_, transport.toStdString());
     try {
       auto subscription_options = rclcpp::SubscriptionOptions();
