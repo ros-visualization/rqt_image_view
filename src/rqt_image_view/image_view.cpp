@@ -365,7 +365,7 @@ void ImageView::onTopicChanged(int index)
         topic.toStdString(),
         std::bind(&ImageView::callbackImage, this, std::placeholders::_1),
         hints.getTransport(),
-        rmw_qos_profile_sensor_data,
+        rclcpp::SensorDataQoS(),
         subscription_options);
       qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'",
           topic.toStdString().c_str(), subscriber_.getTransport().c_str());
