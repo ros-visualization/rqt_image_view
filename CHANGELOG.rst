@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.3 (2025-08-22)
+------------------
+* Support image transport lifecycle node (`#89 <https://github.com/ros-visualization/rqt_image_view/issues/89>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.2 (2025-07-25)
 ------------------
 * Update cmake requirements (fix cmake derpecation +switch to cxx17) (`#81 <https://github.com/ros-visualization/rqt_image_view/issues/81>`_)
