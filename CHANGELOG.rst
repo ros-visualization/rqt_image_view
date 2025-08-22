@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.3 (2025-08-22)
+------------------
+* Update cmake requirements (fix cmake derpecation +switch to cxx17) (backport `#81 <https://github.com/ros-visualization/rqt_image_view/issues/81>`_) (`#97 <https://github.com/ros-visualization/rqt_image_view/issues/97>`_)
+* Contributors: mergify[bot]
+
 1.3.2 (2025-07-16)
 ------------------
 * Porting the color scheme for 32FC1 encoding from Noetic (backport `#90 <https://github.com/ros-visualization/rqt_image_view/issues/90>`_) (`#94 <https://github.com/ros-visualization/rqt_image_view/issues/94>`_)
