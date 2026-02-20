@@ -43,6 +43,7 @@
 #include <QFileDialog>  // NOLINT
 #include <QMessageBox>  // NOLINT
 #include <QPainter>  // NOLINT
+#include <QRegularExpressionValidator>  // NOLINT
 
 namespace rqt_image_view
 {
@@ -121,8 +122,8 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext & context)
   ui_.image_frame->setOuterLayout(ui_.image_layout);
 
   // see http://www.ros.org/wiki/ROS/Concepts#Names.Valid_Names (but also accept an empty field)
-  QRegExp rx("([a-zA-Z/][a-zA-Z0-9_/]*)?");
-  ui_.publish_click_location_topic_line_edit->setValidator(new QRegExpValidator(rx, this));
+  QRegularExpression  rx("([a-zA-Z/][a-zA-Z0-9_/]*)?");
+  ui_.publish_click_location_topic_line_edit->setValidator(new QRegularExpressionValidator(rx, this));
   connect(ui_.publish_click_location_check_box, SIGNAL(toggled(bool)), this,
       SLOT(onMousePublish(bool)));
   connect(ui_.image_frame, SIGNAL(mouseLeft(int,int)), this, SLOT(onMouseLeft(int,int)));  // NOLINT

@@ -51,6 +51,7 @@
 #include <QAction>  // NOLINT
 #include <QImage>  // NOLINT
 #include <QList>  // NOLINT
+#include <QObject>  // NOLINT
 #include <QString>  // NOLINT
 #include <QSet>  // NOLINT
 #include <QSize>  // NOLINT
