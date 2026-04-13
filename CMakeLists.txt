@@ -23,14 +23,25 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(rclcpp REQUIRED)
+# Avoid find_package(QT NAMES Qt6 Qt5 ...) due to CMake's default ascending path resolution
+find_package(Qt6 QUIET COMPONENTS Widgets Core)
+if(Qt6_FOUND)
+  set(QT_VERSION_MAJOR 6)
+else()
+  find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
+  set(QT_VERSION_MAJOR 5)
+endif()
+set(QT_VERSION "${Qt${QT_VERSION_MAJOR}_VERSION}")
+
 find_package(qt_gui_cpp REQUIRED)
 find_package(rqt_gui_cpp REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
-find_package(Qt5Widgets REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+
+message("Using Qt ${QT_VERSION_MAJOR}")
 
 set(rqt_image_view_SRCS
   src/rqt_image_view/image_view.cpp
@@ -46,15 +57,21 @@ set(rqt_image_view_UIS
   src/rqt_image_view/image_view.ui
 )
 
-qt5_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
-
-qt5_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
+if (${QT_VERSION_MAJOR} GREATER "5")
+  qt_standard_project_setup()
+  qt_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
+  qt_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
+else()
+  qt5_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
+  qt5_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
+endif()
 
 add_library(${PROJECT_NAME} SHARED
   ${rqt_image_view_SRCS}
   ${rqt_image_view_MOCS}
   ${rqt_image_view_UIS_H}
 )
+set_property(TARGET ${PROJECT_NAME} PROPERTY AUTOMOC 1)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
@@ -67,10 +84,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   image_transport::image_transport
   ${sensor_msgs_TARGETS}
   ${geometry_msgs_TARGETS}
-  Qt5::Widgets
+  Qt${QT_VERSION_MAJOR}::Widgets
+PRIVATE
+  Qt${QT_VERSION_MAJOR}::Core
+  cv_bridge::cv_bridge
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE
-  cv_bridge::cv_bridge)
 
 install(
   TARGETS ${PROJECT_NAME}
