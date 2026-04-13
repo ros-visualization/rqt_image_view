@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.4 (2026-04-13)
+------------------
+* Support Qt6 (`#98 <https://github.com/ros-visualization/rqt_image_view/issues/98>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.3 (2025-08-22)
 ------------------
 * Support image transport lifecycle node (`#89 <https://github.com/ros-visualization/rqt_image_view/issues/89>`_)
