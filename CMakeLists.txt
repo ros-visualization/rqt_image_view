@@ -23,17 +23,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(rclcpp REQUIRED)
-# Avoid find_package(QT NAMES Qt6 Qt5 ...) due to CMake's default ascending path resolution
-find_package(Qt6 QUIET COMPONENTS Widgets Core)
-if(Qt6_FOUND)
-  set(QT_VERSION_MAJOR 6)
-else()
-  find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
-  set(QT_VERSION_MAJOR 5)
-endif()
-set(QT_VERSION "${Qt${QT_VERSION_MAJOR}_VERSION}")
 
 find_package(qt_gui_cpp REQUIRED)
+set(QT_VERSION_MAJOR "${qt_gui_cpp_USE_QT_MAJOR_VERSION}")
+find_package(Qt${qt_gui_cpp_USE_QT_MAJOR_VERSION} REQUIRED COMPONENTS Widgets Core)
+
 find_package(rqt_gui_cpp REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -58,7 +52,6 @@ set(rqt_image_view_UIS
 )
 
 if (${QT_VERSION_MAJOR} GREATER "5")
-  qt_standard_project_setup()
   qt_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
   qt_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
 else()
