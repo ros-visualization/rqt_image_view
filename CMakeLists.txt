@@ -51,7 +51,7 @@ set(rqt_image_view_UIS
   src/rqt_image_view/image_view.ui
 )
 
-if (${QT_VERSION_MAJOR} GREATER "5")
+if(${QT_VERSION_MAJOR} GREATER "5")
   qt_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
   qt_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
 else()
