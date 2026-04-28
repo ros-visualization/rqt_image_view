@@ -123,7 +123,8 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext & context)
 
   // see http://www.ros.org/wiki/ROS/Concepts#Names.Valid_Names (but also accept an empty field)
   QRegularExpression  rx("([a-zA-Z/][a-zA-Z0-9_/]*)?");
-  ui_.publish_click_location_topic_line_edit->setValidator(new QRegularExpressionValidator(rx, this));
+  ui_.publish_click_location_topic_line_edit->setValidator(new QRegularExpressionValidator(rx,
+      this));
   connect(ui_.publish_click_location_check_box, SIGNAL(toggled(bool)), this,
       SLOT(onMousePublish(bool)));
   connect(ui_.image_frame, SIGNAL(mouseLeft(int,int)), this, SLOT(onMouseLeft(int,int)));  // NOLINT

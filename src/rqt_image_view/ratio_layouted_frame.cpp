@@ -195,7 +195,12 @@ int RatioLayoutedFrame::greatestCommonDivisor(int a, int b)
 void RatioLayoutedFrame::mousePressEvent(QMouseEvent * mouseEvent)
 {
   if(mouseEvent->button() == Qt::LeftButton) {
-    emit mouseLeft(mouseEvent->x(), mouseEvent->y());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QPointF click_pos = mouseEvent->position();
+#else
+    const QPointF click_pos = mouseEvent->localPos();
+#endif
+    emit mouseLeft(static_cast<int>(click_pos.x()), static_cast<int>(click_pos.y()));
   }
   QFrame::mousePressEvent(mouseEvent);
 }
