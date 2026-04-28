@@ -2,8 +2,8 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.5 (2026-04-28)
+------------------
 * Make compatible with Qt5 (`#100 <https://github.com/ros-visualization/rqt_image_view/issues/100>`_)
 * Contributors: Shane Loretz
 
