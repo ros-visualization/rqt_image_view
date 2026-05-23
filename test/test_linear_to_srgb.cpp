@@ -40,9 +40,10 @@
 
 namespace
 {
-cv::Mat lut()
+const cv::Mat & lut()
 {
-  return rqt_image_view::buildLinearToSrgbLut();
+  static const cv::Mat L = rqt_image_view::buildLinearToSrgbLut();
+  return L;
 }
 
 }  // namespace
