@@ -82,6 +82,22 @@ signals:
 
   void mouseLeft(int x, int y);
 
+  // Emitted while the cursor moves over the image frame.
+  // Coordinates are in widget-local pixels (origin at the top-left of the
+  // image frame). To map them to image pixels see
+  // rqt_image_view::detail::mapWidgetToImagePixel.
+  void mouseMovedOnImage(int x, int y);
+
+  // Emitted once when the cursor leaves the image frame.
+  void mouseExitedImage();
+
+public slots:
+  // Enable or disable hover tracking. While disabled, mouseMovedOnImage
+  // only fires while a mouse button is pressed; while enabled it fires on
+  // every cursor pixel motion. Kept off by default to keep the hot path
+  // cold when no consumer is interested.
+  void setHoverTrackingEnabled(bool enabled);
+
 protected slots:
   void onSmoothImageChanged(bool checked);
 
@@ -94,6 +110,10 @@ private:
   static int greatestCommonDivisor(int a, int b);
 
   void mousePressEvent(QMouseEvent * mouseEvent);
+
+  void mouseMoveEvent(QMouseEvent * mouseEvent);
+
+  void leaveEvent(QEvent * event);
 
   QHBoxLayout * outer_layout_;
 

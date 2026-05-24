@@ -35,8 +35,10 @@
 
 #include <ui_image_view.h>
 
-#include <vector>
+#include <atomic>
 #include <memory>
+#include <optional>
+#include <vector>
 
 #include <rqt_gui_cpp/plugin.hpp>
 
@@ -48,14 +50,20 @@
 
 #include <opencv2/core/core.hpp>
 
+#include <rqt_image_view/detail/framerate_estimator.hpp>
+
 #include <QAction>  // NOLINT
 #include <QImage>  // NOLINT
 #include <QList>  // NOLINT
+#include <QMutex>  // NOLINT
 #include <QObject>  // NOLINT
+#include <QPoint>  // NOLINT
 #include <QString>  // NOLINT
 #include <QSet>  // NOLINT
 #include <QSize>  // NOLINT
 #include <QWidget>  // NOLINT
+
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace rqt_image_view
 {
@@ -103,12 +111,24 @@ protected slots:
 
   virtual void onMouseLeft(int x, int y);
 
+  virtual void onMouseMovedOnImage(int x, int y);
+
+  virtual void onMouseExitedImage();
+
+  // Throttle-timer callback that renders the most recent hover coordinates;
+  // see hover_throttle_timer_ for the rate-limiting design.
+  virtual void flushHoverLabel();
+
   virtual void onPubTopicChanged();
 
   virtual void onHideToolbarChanged(bool hide);
 
+  virtual void onInfoBarToggled(bool checked);
+
   virtual void onRotateLeft();
   virtual void onRotateRight();
+
+  virtual void updateInfoBarStats();
 
 protected:
   virtual void callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & msg);
@@ -140,6 +160,12 @@ private:
 
   void syncRotateLabel();
 
+  // Wire up the info-bar widgets, timers, and signal/slot connections.
+  void setupInfoBar();
+
+  // Reset the hover readout to the "no value" placeholder.
+  void clearHoverLabel();
+
   QString arg_topic_name;
 
   rclcpp::Publisher<geometry_msgs::msg::Point>::SharedPtr pub_mouse_left_;
@@ -150,7 +176,38 @@ private:
 
   int num_gridlines_;
 
-  RotateState rotate_state_;
+  // rotate_state_: written by the GUI thread (onRotateLeft/onRotateRight,
+  // restoreSettings); read by the subscriber callback (callbackImage) to
+  // decide how to rotate the just-arrived image. std::atomic makes the
+  // cross-thread read race-free under the C++17 memory model.
+  std::atomic<RotateState> rotate_state_;
+
+  // latest_msg_ + latest_rotation_degrees_: both written by the ROS subscriber
+  // callback under latest_msg_mutex_ so the hover handler reads the message
+  // together with the rotation that was actually applied to it — needed
+  // because the rotate buttons change rotate_state_ without re-rendering the
+  // currently displayed frame.
+  sensor_msgs::msg::Image::ConstSharedPtr latest_msg_;
+  int latest_rotation_degrees_;
+  mutable QMutex latest_msg_mutex_;
+
+  // framerate_estimator_: written by the subscriber callback, read by the
+  // info-bar timer; serialized with framerate_mutex_. Samples are pushed even
+  // when cv_bridge later fails so arrival rate stays measurable on broken
+  // streams — latest_msg_ in contrast only updates after a successful conversion.
+  detail::FramerateEstimator framerate_estimator_;
+  mutable QMutex framerate_mutex_;
+
+  // GUI thread only; created in initPlugin and parented to `this`.
+  QTimer * info_bar_stats_timer_;
+
+  // High-polling-rate mice (multi-kHz) can fire mouseMoveEvent faster than a
+  // RichText QLabel can re-layout, so we coalesce: onMouseMovedOnImage stores
+  // the latest position in pending_hover_ and starts the single-shot
+  // hover_throttle_timer_; flushHoverLabel() renders at most once per
+  // HOVER_THROTTLE_INTERVAL_MS. GUI thread only.
+  std::optional<QPoint> pending_hover_;
+  QTimer * hover_throttle_timer_;
 };
 
 }  // namespace rqt_image_view

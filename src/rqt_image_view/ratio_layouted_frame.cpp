@@ -47,6 +47,8 @@ RatioLayoutedFrame::RatioLayoutedFrame(QWidget * parent, Qt::WindowFlags flags)
 {
   (void)parent;
   (void)flags;
+  // Hover tracking is off by default; ImageView turns it on while the info
+  // bar is visible (see setHoverTrackingEnabled).
   connect(this, SIGNAL(delayed_update()), this, SLOT(update()), Qt::QueuedConnection);
 }
 
@@ -203,6 +205,28 @@ void RatioLayoutedFrame::mousePressEvent(QMouseEvent * mouseEvent)
     emit mouseLeft(static_cast<int>(click_pos.x()), static_cast<int>(click_pos.y()));
   }
   QFrame::mousePressEvent(mouseEvent);
+}
+
+void RatioLayoutedFrame::mouseMoveEvent(QMouseEvent * mouseEvent)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  const QPointF pos = mouseEvent->position();
+#else
+  const QPointF pos = mouseEvent->localPos();
+#endif
+  emit mouseMovedOnImage(static_cast<int>(pos.x()), static_cast<int>(pos.y()));
+  QFrame::mouseMoveEvent(mouseEvent);
+}
+
+void RatioLayoutedFrame::leaveEvent(QEvent * event)
+{
+  emit mouseExitedImage();
+  QFrame::leaveEvent(event);
+}
+
+void RatioLayoutedFrame::setHoverTrackingEnabled(bool enabled)
+{
+  setMouseTracking(enabled);
 }
 
 void RatioLayoutedFrame::onSmoothImageChanged(bool checked)

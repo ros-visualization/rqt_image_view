@@ -31,19 +31,27 @@
  */
 
 
+#include <algorithm>
+#include <chrono>
+#include <optional>
 #include <vector>
 
 #include <pluginlib/class_list_macros.hpp>
+#include <rqt_image_view/detail/pixel_format.hpp>
+#include <rqt_image_view/detail/pixel_mapping.hpp>
 #include <rqt_image_view/image_view.hpp>
-#include <sensor_msgs/image_encodings.hpp>
 
 #include <cv_bridge/cv_bridge.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include <QFileDialog>  // NOLINT
+#include <QFont>  // NOLINT
+#include <QFontDatabase>  // NOLINT
 #include <QMessageBox>  // NOLINT
 #include <QPainter>  // NOLINT
+#include <QPoint>  // NOLINT
 #include <QRegularExpressionValidator>  // NOLINT
+#include <QTimer>  // NOLINT
 
 namespace rqt_image_view
 {
@@ -65,11 +73,29 @@ static const std::map<std::string, int> COLOR_SCHEME_MAP
   {"Winter", cv::COLORMAP_WINTER}
 };  // following OpenCV options https://docs.opencv.org/4.x/d3/d50/group__imgproc__colormap.html
 
+namespace
+{
+constexpr int INFO_BAR_UPDATE_INTERVAL_MS = 500;
+// Coalescing interval for the hover label; see hover_throttle_timer_.
+constexpr int HOVER_THROTTLE_INTERVAL_MS = 30;
+
+// Right-pad to this width so the framerate field doesn't shift neighbours.
+constexpr int FRAMERATE_FIELD_WIDTH = 4;
+constexpr const char * FRAMERATE_SIZING_SAMPLE = "99.9 Hz";
+constexpr double SUB_HERTZ_FLOOR = 0.05;
+
+// NBSP as fill so HTML rendering doesn't collapse the alignment padding.
+constexpr QChar NBSP(0x00A0);
+}  // namespace
+
 ImageView::ImageView()
 : rqt_gui_cpp::Plugin()
   , widget_(0)
   , num_gridlines_(0)
   , rotate_state_(ROTATE_0)
+  , latest_rotation_degrees_(0)
+  , info_bar_stats_timer_(nullptr)
+  , hover_throttle_timer_(nullptr)
 {
   setObjectName("ImageView");
 }
@@ -154,6 +180,44 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext & context)
   hide_toolbar_action_->setCheckable(true);
   ui_.image_frame->addAction(hide_toolbar_action_);
   connect(hide_toolbar_action_, SIGNAL(toggled(bool)), this, SLOT(onHideToolbarChanged(bool)));
+
+  setupInfoBar();
+}
+
+void ImageView::setupInfoBar()
+{
+  ui_.info_bar_toggle_button->setIcon(QIcon::fromTheme("dialog-information"));
+  ui_.resolution_label->setTextFormat(Qt::PlainText);
+  ui_.encoding_label->setTextFormat(Qt::PlainText);
+  ui_.framerate_label->setTextFormat(Qt::PlainText);
+  ui_.hover_label->setTextFormat(Qt::RichText);
+  // Use the platform's fixed-pitch font for the whole info bar so that the
+  // padded numbers (framerate, hover coords, channel values) stay column-
+  // aligned and do not shift neighbours as values change magnitude.
+  ui_.info_bar_widget->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+  ui_.framerate_label->setMinimumWidth(
+    ui_.framerate_label->fontMetrics().horizontalAdvance(FRAMERATE_SIZING_SAMPLE)
+  );
+#else
+  ui_.framerate_label->setMinimumWidth(
+    ui_.framerate_label->fontMetrics().width(FRAMERATE_SIZING_SAMPLE)
+  );
+#endif
+  connect(ui_.info_bar_toggle_button, SIGNAL(toggled(bool)), this,
+      SLOT(onInfoBarToggled(bool)));
+  connect(ui_.image_frame, SIGNAL(mouseMovedOnImage(int,int)), this,  // NOLINT
+      SLOT(onMouseMovedOnImage(int,int)));  // NOLINT
+  connect(ui_.image_frame, SIGNAL(mouseExitedImage()), this, SLOT(onMouseExitedImage()));
+
+  info_bar_stats_timer_ = new QTimer(this);
+  info_bar_stats_timer_->setInterval(INFO_BAR_UPDATE_INTERVAL_MS);
+  connect(info_bar_stats_timer_, SIGNAL(timeout()), this, SLOT(updateInfoBarStats()));
+
+  hover_throttle_timer_ = new QTimer(this);
+  hover_throttle_timer_->setInterval(HOVER_THROTTLE_INTERVAL_MS);
+  hover_throttle_timer_->setSingleShot(true);
+  connect(hover_throttle_timer_, SIGNAL(timeout()), this, SLOT(flushHoverLabel()));
 }
 
 void ImageView::shutdownPlugin()
@@ -179,8 +243,9 @@ void ImageView::saveSettings(
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
   instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
   instance_settings.setValue("smooth_image", ui_.smooth_image_check_box->isChecked());
-  instance_settings.setValue("rotate", rotate_state_);
+  instance_settings.setValue("rotate", rotate_state_.load(std::memory_order_relaxed));
   instance_settings.setValue("color_scheme", ui_.color_scheme_combo_box->currentIndex());
+  instance_settings.setValue("show_info_bar", ui_.info_bar_toggle_button->isChecked());
 }
 
 void ImageView::restoreSettings(
@@ -223,15 +288,23 @@ void ImageView::restoreSettings(
   bool smooth_image_checked = instance_settings.value("smooth_image", false).toBool();
   ui_.smooth_image_check_box->setChecked(smooth_image_checked);
 
-  rotate_state_ = static_cast<RotateState>(instance_settings.value("rotate", 0).toInt());
-  if(rotate_state_ >= ROTATE_STATE_COUNT) {
-    rotate_state_ = ROTATE_0;
+  {
+    auto restored = static_cast<RotateState>(instance_settings.value("rotate", 0).toInt());
+    if (restored >= ROTATE_STATE_COUNT) {
+      restored = ROTATE_0;
+    }
+    rotate_state_.store(restored, std::memory_order_relaxed);
   }
   syncRotateLabel();
 
   // set default color scheme to Gray
   ui_.color_scheme_combo_box->setCurrentIndex(ui_.color_scheme_combo_box->findText("Gray"));
   ui_.color_scheme_combo_box->setCurrentText("Gray");
+
+  const bool show_info_bar = instance_settings.value("show_info_bar", false).toBool();
+  ui_.info_bar_toggle_button->setChecked(show_info_bar);
+  // setChecked() is silent when state matches the .ui default; sync explicitly.
+  onInfoBarToggled(show_info_bar);
 }
 
 void ImageView::updateTopicList()
@@ -345,10 +418,33 @@ void ImageView::onTopicChanged(int index)
 {
   conversion_mat_.release();
 
+  // shutdown() is not a synchronous drain; an in-flight callback may briefly
+  // re-seed the state we reset below, but the next assignments overwrite it.
   subscriber_.shutdown();
+
+  {
+    QMutexLocker lock(&latest_msg_mutex_);
+    latest_msg_.reset();
+    latest_rotation_degrees_ = 0;
+  }
+  {
+    QMutexLocker lock(&framerate_mutex_);
+    framerate_estimator_.reset();
+  }
+  pending_hover_.reset();
+  if (hover_throttle_timer_ != nullptr) {
+    hover_throttle_timer_->stop();
+  }
 
   // reset image on topic change
   ui_.image_frame->setImage(QImage());
+
+  // Refresh the info-bar labels immediately rather than waiting for the next
+  // 500 ms tick to clear the stale resolution/encoding/framerate.
+  if (ui_.info_bar_toggle_button->isChecked()) {
+    updateInfoBarStats();
+    clearHoverLabel();
+  }
 
   QStringList parts = ui_.topics_combo_box->itemData(index).toString().split(" ");
   QString topic = parts.first();
@@ -371,7 +467,14 @@ void ImageView::onTopicChanged(int index)
         subscription_options);
       qDebug("ImageView::onTopicChanged() to topic '%s' with transport '%s'",
           topic.toStdString().c_str(), subscriber_.getTransport().c_str());
-    } catch (image_transport::TransportLoadException & e) {
+    } catch (const std::exception & e) {
+      // Broad catch: an uncaught exception out of a Qt slot is UB in Qt 6.
+      RCLCPP_ERROR(
+        node_->get_logger(),
+        "rqt_image_view: failed to subscribe to '%s' with transport '%s': %s",
+        topic.toStdString().c_str(),
+        transport.toStdString().c_str(),
+        e.what());
       QMessageBox::warning(widget_, tr("Loading image transport plugin failed"), e.what());
     }
   }
@@ -454,7 +557,7 @@ void ImageView::onMouseLeft(int x, int y)
 
     geometry_msgs::msg::Point clickLocation = clickCanvasLocation;
 
-    switch(rotate_state_) {
+    switch (rotate_state_.load(std::memory_order_relaxed)) {
       case ROTATE_90:
         clickLocation.x = clickCanvasLocation.y;
         clickLocation.y = ui_.image_frame->getImage().width() - clickCanvasLocation.x;
@@ -475,6 +578,74 @@ void ImageView::onMouseLeft(int x, int y)
   }
 }
 
+void ImageView::onMouseMovedOnImage(int widget_x, int widget_y)
+{
+  if (!ui_.info_bar_toggle_button->isChecked()) {
+    return;
+  }
+  pending_hover_ = QPoint(widget_x, widget_y);
+  if (!hover_throttle_timer_->isActive()) {
+    hover_throttle_timer_->start();
+  }
+}
+
+void ImageView::onMouseExitedImage()
+{
+  // Drop any in-flight throttle so we don't immediately overwrite the
+  // exit-state placeholder with a stale hover update.
+  hover_throttle_timer_->stop();
+  pending_hover_.reset();
+  if (ui_.info_bar_toggle_button->isChecked()) {
+    clearHoverLabel();
+  }
+}
+
+void ImageView::flushHoverLabel()
+{
+  if (!pending_hover_.has_value()) {
+    return;
+  }
+  const QPoint widget_pos = *pending_hover_;
+  pending_hover_.reset();
+
+  sensor_msgs::msg::Image::ConstSharedPtr msg;
+  int rotation_degrees = 0;
+  {
+    QMutexLocker lock(&latest_msg_mutex_);
+    msg = latest_msg_;
+    rotation_degrees = latest_rotation_degrees_;
+  }
+  if (!msg) {
+    clearHoverLabel();
+    return;
+  }
+  const auto pixel = detail::mapWidgetToImagePixel(
+    widget_pos.x(), widget_pos.y(),
+    ui_.image_frame->width(), ui_.image_frame->height(),
+    static_cast<int>(msg->width), static_cast<int>(msg->height),
+    rotation_degrees);
+  if (!pixel) {
+    clearHoverLabel();
+    return;
+  }
+  const int x = pixel->x();
+  const int y = pixel->y();
+  const int x_pad =
+    QString::number(std::max(0, static_cast<int>(msg->width) - 1)).size();
+  const int y_pad =
+    QString::number(std::max(0, static_cast<int>(msg->height) - 1)).size();
+  ui_.hover_label->setText(
+    tr("Pixel(%1, %2) %3")
+    .arg(x, x_pad, 10, NBSP)
+    .arg(y, y_pad, 10, NBSP)
+    .arg(detail::formatPixelValue(*msg, x, y)));
+}
+
+void ImageView::clearHoverLabel()
+{
+  ui_.hover_label->setText(tr("Pixel —"));
+}
+
 void ImageView::onPubTopicChanged()
 {
   pub_topic_custom_ = !(ui_.publish_click_location_topic_line_edit->text().isEmpty());
@@ -486,26 +657,80 @@ void ImageView::onHideToolbarChanged(bool hide)
   ui_.toolbar_widget->setVisible(!hide);
 }
 
+void ImageView::onInfoBarToggled(bool checked)
+{
+  ui_.info_bar_widget->setVisible(checked);
+  // Only track hover while the bar is visible — otherwise every mouse pixel
+  // would still wake up onMouseMovedOnImage for nothing.
+  ui_.image_frame->setHoverTrackingEnabled(checked);
+  if (checked) {
+    updateInfoBarStats();
+    info_bar_stats_timer_->start();
+  } else {
+    info_bar_stats_timer_->stop();
+    hover_throttle_timer_->stop();
+    pending_hover_.reset();
+  }
+}
+
 void ImageView::onRotateLeft()
 {
-  int m = rotate_state_ - 1;
-  if(m < 0) {
-    m = ROTATE_STATE_COUNT - 1;
+  const int current = rotate_state_.load(std::memory_order_relaxed);
+  int next = current - 1;
+  if (next < 0) {
+    next = ROTATE_STATE_COUNT - 1;
   }
-
-  rotate_state_ = static_cast<RotateState>(m);
+  rotate_state_.store(static_cast<RotateState>(next), std::memory_order_relaxed);
   syncRotateLabel();
 }
 
 void ImageView::onRotateRight()
 {
-  rotate_state_ = static_cast<RotateState>((rotate_state_ + 1) % ROTATE_STATE_COUNT);
+  const int current = rotate_state_.load(std::memory_order_relaxed);
+  rotate_state_.store(
+    static_cast<RotateState>((current + 1) % ROTATE_STATE_COUNT),
+    std::memory_order_relaxed);
   syncRotateLabel();
+}
+
+void ImageView::updateInfoBarStats()
+{
+  sensor_msgs::msg::Image::ConstSharedPtr msg;
+  {
+    QMutexLocker lock(&latest_msg_mutex_);
+    msg = latest_msg_;
+  }
+  if (msg) {
+    ui_.resolution_label->setText(tr("%1×%2").arg(msg->width).arg(msg->height));
+    constexpr int MAX_ENCODING_CHARS = 32;
+    QString encoding = QString::fromStdString(msg->encoding);
+    if (encoding.size() > MAX_ENCODING_CHARS) {
+      encoding = encoding.left(MAX_ENCODING_CHARS - 1) + QChar(0x2026);  // …
+    }
+    ui_.encoding_label->setText(encoding);
+  } else {
+    ui_.resolution_label->setText(tr("—"));
+    ui_.encoding_label->setText(tr("—"));
+  }
+
+  std::optional<double> fps;
+  {
+    QMutexLocker lock(&framerate_mutex_);
+    fps = framerate_estimator_.compute(std::chrono::steady_clock::now());
+  }
+  if (!fps.has_value()) {
+    ui_.framerate_label->setText(
+      tr("%1 Hz").arg(QStringLiteral("—"), FRAMERATE_FIELD_WIDTH, NBSP));
+  } else if (*fps < SUB_HERTZ_FLOOR) {
+    ui_.framerate_label->setText(tr("<.05 Hz"));
+  } else {
+    ui_.framerate_label->setText(tr("%1 Hz").arg(*fps, FRAMERATE_FIELD_WIDTH, 'f', 1));
+  }
 }
 
 void ImageView::syncRotateLabel()
 {
-  switch(rotate_state_) {
+  switch (rotate_state_.load(std::memory_order_relaxed)) {
     default:
     case ROTATE_0:   ui_.rotate_label->setText("0°"); break;
     case ROTATE_90:  ui_.rotate_label->setText("90°"); break;
@@ -583,6 +808,21 @@ void ImageView::overlayGrid()
 
 void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
 {
+  // Framerate tracks every arrival regardless of whether the message is
+  // displayable (a publisher whose stream is "broken" still has a measurable
+  // rate, which is useful diagnostic information).
+  const auto now_wall = std::chrono::steady_clock::now();
+  {
+    QMutexLocker lock(&framerate_mutex_);
+    framerate_estimator_.addSample(now_wall);
+  }
+
+  // Snapshot the rotation once so it stays consistent across this callback
+  // (rotate switch below) and is also what we publish alongside latest_msg_
+  // for the hover handler to use.
+  const RotateState applied_rotation = rotate_state_.load(std::memory_order_relaxed);
+  const int applied_rotation_degrees = applied_rotation * 90;
+
   try {
     // First let cv_bridge do its magic
     cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg,
@@ -648,8 +888,8 @@ void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & ms
     }
   }
 
-  // Handle rotation
-  switch(rotate_state_) {
+  // Handle rotation (apply the snapshot taken at the top of this callback).
+  switch (applied_rotation) {
     case ROTATE_90:
       {
         cv::Mat tmp;
@@ -673,6 +913,14 @@ void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & ms
       }
     default:
       break;
+  }
+
+  // Publish to the hover-readout path only after a successful conversion;
+  // failed frames early-return above so latest_msg_ keeps its previous value.
+  {
+    QMutexLocker lock(&latest_msg_mutex_);
+    latest_msg_ = msg;
+    latest_rotation_degrees_ = applied_rotation_degrees;
   }
 
   // image must be copied since it uses the conversion_mat_ for storage which is
