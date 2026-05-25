@@ -35,6 +35,7 @@
 
 #include <pluginlib/class_list_macros.hpp>
 #include <rqt_image_view/image_view.hpp>
+#include <rqt_image_view/linear_to_srgb.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 
 #include <cv_bridge/cv_bridge.hpp>
@@ -179,6 +180,7 @@ void ImageView::saveSettings(
   instance_settings.setValue("toolbar_hidden", hide_toolbar_action_->isChecked());
   instance_settings.setValue("num_gridlines", ui_.num_gridlines_spin_box->value());
   instance_settings.setValue("smooth_image", ui_.smooth_image_check_box->isChecked());
+  instance_settings.setValue("linear_input", ui_.linear_input_check_box->isChecked());
   instance_settings.setValue("rotate", rotate_state_);
   instance_settings.setValue("color_scheme", ui_.color_scheme_combo_box->currentIndex());
 }
@@ -222,6 +224,9 @@ void ImageView::restoreSettings(
 
   bool smooth_image_checked = instance_settings.value("smooth_image", false).toBool();
   ui_.smooth_image_check_box->setChecked(smooth_image_checked);
+
+  bool linear_input_checked = instance_settings.value("linear_input", false).toBool();
+  ui_.linear_input_check_box->setChecked(linear_input_checked);
 
   rotate_state_ = static_cast<RotateState>(instance_settings.value("rotate", 0).toInt());
   if(rotate_state_ >= ROTATE_STATE_COUNT) {
@@ -583,6 +588,11 @@ void ImageView::overlayGrid()
 
 void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
 {
+  // Track whether a colormap replaced the source intensities; if it did,
+  // applying sRGB encoding on top would gamma-correct false-color codes,
+  // which is not meaningful.
+  bool colormap_applied = false;
+
   try {
     // First let cv_bridge do its magic
     cv_bridge::CvImageConstPtr cv_ptr = cv_bridge::toCvShare(msg,
@@ -631,6 +641,7 @@ void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & ms
           cv::Mat img_color_scheme;
           cv::applyColorMap(img_scaled_8u, img_color_scheme, color_scheme);
           cv::cvtColor(img_color_scheme, conversion_mat_, CV_BGR2RGB);
+          colormap_applied = true;
         }
       } else {
         qWarning("ImageView.callback_image() could not convert image from '%s' to 'rgb8' (%s)",
@@ -673,6 +684,10 @@ void ImageView::callbackImage(const sensor_msgs::msg::Image::ConstSharedPtr & ms
       }
     default:
       break;
+  }
+
+  if (ui_.linear_input_check_box->isChecked() && !colormap_applied) {
+    conversion_mat_ = linearToSrgb(conversion_mat_);
   }
 
   // image must be copied since it uses the conversion_mat_ for storage which is
