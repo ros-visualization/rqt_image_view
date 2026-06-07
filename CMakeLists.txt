@@ -127,15 +127,7 @@ ament_export_targets(${PROJECT_NAME})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
-
-  find_package(ament_cmake_gtest REQUIRED)
-  # Note: ament_cmake_gtest links its own dependencies onto the target with
-  # the plain-form target_link_libraries; CMake then requires us to use the
-  # same form here. Visibility keyword (PRIVATE) would error out.
-  foreach(suite pixel_format pixel_mapping)
-    ament_add_gtest(test_${suite} test/test_${suite}.cpp)
-    target_link_libraries(test_${suite} ${PROJECT_NAME})
-  endforeach()
+  add_subdirectory(test)
 endif()
 
 ament_package()

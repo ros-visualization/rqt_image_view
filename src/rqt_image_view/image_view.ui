@@ -181,6 +181,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="linear_input_check_box">
+          <property name="toolTip">
+           <string>Treat pixel values as linear light and apply sRGB encoding before display. Use this for sensors or sources that output linear-response images, which would otherwise appear too dark on a standard display. Has no effect when a colormap is active.</string>
+          </property>
+          <property name="text">
+           <string>Linear input</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="rotate_left_push_button">
           <property name="text">
            <string/>
