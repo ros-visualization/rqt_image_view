@@ -8,3 +8,8 @@ target_include_directories(test_linear_to_srgb PRIVATE
 target_link_libraries(test_linear_to_srgb
   opencv_core
 )
+
+foreach(suite pixel_format pixel_mapping)
+  ament_add_gtest(test_${suite} test_${suite}.cpp)
+  target_link_libraries(test_${suite} ${PROJECT_NAME})
+endforeach()

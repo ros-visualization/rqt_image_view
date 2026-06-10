@@ -38,6 +38,9 @@ find_package(ament_cmake_python REQUIRED)
 message("Using Qt ${QT_VERSION_MAJOR}")
 
 set(rqt_image_view_SRCS
+  src/rqt_image_view/detail/framerate_estimator.cpp
+  src/rqt_image_view/detail/pixel_format.cpp
+  src/rqt_image_view/detail/pixel_mapping.cpp
   src/rqt_image_view/image_view.cpp
   src/rqt_image_view/ratio_layouted_frame.cpp
 )
@@ -101,6 +104,7 @@ install(PROGRAMS scripts/image_publisher
 install(
   DIRECTORY include/
   DESTINATION include/${PROJECT_NAME}
+  PATTERN "detail" EXCLUDE
 )
 
 install(FILES plugin.xml
