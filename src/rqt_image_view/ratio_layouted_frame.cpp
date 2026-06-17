@@ -171,7 +171,7 @@ void RatioLayoutedFrame::paintEvent(QPaintEvent * event)
         painter.drawImage(contentsRect(), qimage_);
       } else {
         QImage image = qimage_.scaled(contentsRect().width(), contentsRect().height(),
-                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                                      Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         painter.drawImage(contentsRect(), image);
       }
     }
