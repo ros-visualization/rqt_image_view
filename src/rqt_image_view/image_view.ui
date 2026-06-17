@@ -299,7 +299,7 @@
              <enum>QFrame::NoFrame</enum>
             </property>
             <property name="lineWidth">
-             <number>1</number>
+             <number>0</number>
             </property>
            </widget>
           </item>
