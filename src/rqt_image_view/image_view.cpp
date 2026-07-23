@@ -34,6 +34,7 @@
 #include <algorithm>
 #include <chrono>
 #include <optional>
+#include <string>
 #include <vector>
 
 #include <pluginlib/class_list_macros.hpp>
@@ -355,6 +356,29 @@ void ImageView::updateTopicList()
   selectTopic(selected);
 }
 
+namespace
+{
+// A topic is hidden if any '/'-separated token starts with an underscore,
+// e.g. the <topic>/_buf_cpu channels created by buffer-aware rmw
+// implementations.  Mirrors rclpy's topic_or_service_is_hidden(), which is
+// what "ros2 topic list" uses to hide such names by default.
+bool topicIsHidden(const std::string & name)
+{
+  size_t start = 0;
+  while (start < name.size()) {
+    size_t end = name.find('/', start);
+    if (end == std::string::npos) {
+      end = name.size();
+    }
+    if (end > start && name[start] == '_') {
+      return true;
+    }
+    start = end + 1;
+  }
+  return false;
+}
+}  // namespace
+
 QSet<QString> ImageView::getTopics(
   const QSet<QString> & message_types,
   const QSet<QString> & message_sub_types, const QList<QString> & transports)
@@ -372,6 +396,9 @@ QSet<QString> ImageView::getTopics(
   for (std::map<std::string, std::vector<std::string>>::iterator it = topic_info.begin();
     it != topic_info.end(); ++it)
   {
+    if (topicIsHidden(it->first)) {
+      continue;
+    }
     for (std::vector<std::string>::const_iterator msg_type_it = it->second.begin();
       msg_type_it != it->second.end(); ++msg_type_it)
     {
