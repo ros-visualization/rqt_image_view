@@ -25,8 +25,7 @@ endif()
 find_package(rclcpp REQUIRED)
 
 find_package(qt_gui_cpp REQUIRED)
-set(QT_VERSION_MAJOR "${qt_gui_cpp_USE_QT_MAJOR_VERSION}")
-find_package(Qt${qt_gui_cpp_USE_QT_MAJOR_VERSION} REQUIRED COMPONENTS Widgets Core)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core)
 
 find_package(rqt_gui_cpp REQUIRED)
 find_package(image_transport REQUIRED)
@@ -34,8 +33,6 @@ find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(ament_cmake_python REQUIRED)
-
-message("Using Qt ${QT_VERSION_MAJOR}")
 
 set(rqt_image_view_SRCS
   src/rqt_image_view/detail/framerate_estimator.cpp
@@ -54,13 +51,8 @@ set(rqt_image_view_UIS
   src/rqt_image_view/image_view.ui
 )
 
-if(${QT_VERSION_MAJOR} GREATER "5")
-  qt_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
-  qt_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
-else()
-  qt5_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
-  qt5_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
-endif()
+qt_wrap_cpp(rqt_image_view_MOCS ${rqt_image_view_HDRS})
+qt_wrap_ui(rqt_image_view_UIS_H ${rqt_image_view_UIS})
 
 add_library(${PROJECT_NAME} SHARED
   ${rqt_image_view_SRCS}
@@ -80,9 +72,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   image_transport::image_transport
   ${sensor_msgs_TARGETS}
   ${geometry_msgs_TARGETS}
-  Qt${QT_VERSION_MAJOR}::Widgets
+  Qt6::Widgets
 PRIVATE
-  Qt${QT_VERSION_MAJOR}::Core
+  Qt6::Core
   cv_bridge::cv_bridge
 )
 

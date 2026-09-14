@@ -166,17 +166,11 @@ void ImageView::initPlugin(qt_gui_cpp::PluginContext & context)
   connect(ui_.rotate_right_push_button, SIGNAL(clicked(bool)), this, SLOT(onRotateRight()));
 
   // Make sure we have enough space for "XXX °"
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
   // QFontMetrics::width(QChar) is deprecated starting from qt version 5.11.0
   // https://doc.qt.io/qt-5/qfontmetrics.html#horizontalAdvance-1
   ui_.rotate_label->setMinimumWidth(
     ui_.rotate_label->fontMetrics().horizontalAdvance("XXX°")
   );
-#else
-  ui_.rotate_label->setMinimumWidth(
-    ui_.rotate_label->fontMetrics().width("XXX°")
-  );
-#endif
 
   hide_toolbar_action_ = new QAction(tr("Hide toolbar"), this);
   hide_toolbar_action_->setCheckable(true);
@@ -197,15 +191,9 @@ void ImageView::setupInfoBar()
   // padded numbers (framerate, hover coords, channel values) stay column-
   // aligned and do not shift neighbours as values change magnitude.
   ui_.info_bar_widget->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
   ui_.framerate_label->setMinimumWidth(
     ui_.framerate_label->fontMetrics().horizontalAdvance(FRAMERATE_SIZING_SAMPLE)
   );
-#else
-  ui_.framerate_label->setMinimumWidth(
-    ui_.framerate_label->fontMetrics().width(FRAMERATE_SIZING_SAMPLE)
-  );
-#endif
   connect(ui_.info_bar_toggle_button, SIGNAL(toggled(bool)), this,
       SLOT(onInfoBarToggled(bool)));
   connect(ui_.image_frame, SIGNAL(mouseMovedOnImage(int,int)), this,  // NOLINT
