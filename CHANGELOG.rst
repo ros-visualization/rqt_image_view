@@ -2,6 +2,14 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.6 (2026-09-14)
+------------------
+* Remove Qt5 support (`#108 <https://github.com/ros-visualization/rqt_image_view/issues/108>`_)
+* Add toggleable info bar below the image (`#106 <https://github.com/ros-visualization/rqt_image_view/issues/106>`_)
+* Support linear response images via sRGB OETF (`#105 <https://github.com/ros-visualization/rqt_image_view/issues/105>`_)
+* Make linters happy and removed warning (`#101 <https://github.com/ros-visualization/rqt_image_view/issues/101>`_)
+* Contributors: Alejandro Hernández Cordero, Arne Baeyens, Michal Sojka
+
 2.0.5 (2026-04-28)
 ------------------
 * Make compatible with Qt5 (`#100 <https://github.com/ros-visualization/rqt_image_view/issues/100>`_)
