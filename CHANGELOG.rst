@@ -2,6 +2,11 @@
 Changelog for package rqt_image_view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.7 (2026-10-12)
+------------------
+* Hide topic name _buf_cpu (`#107 <https://github.com/ros-visualization/rqt_image_view//issues/107>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.6 (2026-09-14)
 ------------------
 * Remove Qt5 support (`#108 <https://github.com/ros-visualization/rqt_image_view/issues/108>`_)
